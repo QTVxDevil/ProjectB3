@@ -1,0 +1,216 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    border: none;
+    outline: none;
+    scroll-behavior: smooth;
+    font-family: "Roboto", sans-serif;
+}
+
+:root {
+    --text-color: white;
+    --main-color: #0C1E76;
+}
+
+html{
+    font-size: 60%;
+    overflow-x: hidden;
+}
+
+.header{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 2rem 2% 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+}
+
+.header-text{
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+}
+
+.logo-img img{
+    position: relative;
+    width: 15vw;
+}
+
+.left{
+    position: fixed;
+    margin-top: 0;
+    margin-left: 5rem;
+    font-size: 1.3rem;
+    text-align: left;
+    color: var(--main-color);
+    display: flex;
+}
+
+.right{
+    position: fixed;
+    margin-top: 0;
+    margin-left: 80rem;
+    font-size: 1rem;
+    color: var(--main-color);
+    display: flex;
+    text-align: center;
+}
+
+.vertical-line {
+    border-left: 3px solid red;
+    height: 85px; /* Adjust height as needed */
+    margin-left: 2.5rem;
+}
+
+.boundary{
+    background-color: var(--main-color);
+    width: 100%;
+    height: 60px;
+    display: flex;
+    margin-top: 11%;
+}
+
+.banner {
+    position: relative;
+    display: inline-block;
+    background-color: #e30613; /* Red background */
+    color: white;
+    padding: 10px 20px;
+    margin-left: 45px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    
+}
+
+.banner::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -13px;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 47px solid transparent;
+    border-right: 47px solid transparent;
+    border-top: 14px solid #e30613; /* Red to match background */
+}
+
+.banner p{
+    margin-top: 20%;
+}
+
+.login-form{
+    width: 450px;
+    height: 330px;
+    margin-top: 2rem;
+    margin-left: 31%;
+}
+
+.head-form{
+    width: 100%;
+    height: 40px;
+}
+
+.head-form h2{
+    font-size: 2rem;
+    padding-top: 10px;
+}
+
+.body-form{
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: 290px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.input-email {
+    padding-top: 2rem;
+}
+
+.input-pass {
+    padding-top: 0;
+}
+
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 2rem; 
+    font-size: 1.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    outline: none;
+    transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 5px rgba(96, 165, 250, 0.5);
+}
+
+input::placeholder {
+    color: #6b7280;
+    opacity: 1;
+}
+
+.login-as{
+    font-size: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: row; 
+}
+
+.radio-item {
+    display: flex;
+    align-items: center;
+    padding-right: 7rem;
+    margin-left: 1.3rem;
+    margin-right: 1rem; /* Add space between items */
+    
+}
+
+.radio-item input[type="radio"] {
+    margin-right: 1rem;
+}
+
+.radio-item label {
+    font-size: 1.8rem;
+}
+
+.submit-btn {
+    display: block; 
+    margin: 0 auto; 
+    padding: 1rem 5rem;
+    margin-top: 2rem;
+    font-size: 1.7rem;
+    background-color: var(--main-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #2563eb;
+}
+
+

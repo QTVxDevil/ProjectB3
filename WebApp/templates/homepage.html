@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>attendance management</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo-img">
+            <img src="{{ url_for('static', filename='./images/logoUSTH.png')}}" alt="logo">  
+        </div>
+
+        <div class="header-text">
+            <div class="vertical-line"></div>
+            <div class="left">
+                <h1><b>UNIVERSITY OF<br>
+                       SCIENCE AND TECHNOLOGY<br>
+                       OF HA NOI</b></h1>
+            </div>
+            <div class="right">
+                <h1><b>ATTENDANCE<br>MANAGEMENT</b></h1>
+            </div>
+        </div>
+    </header>
+
+    <section class="boundary">
+        <div class="banner">
+            <p>HOME</p>
+        </div>
+    </section>
+
+    <section class="login-form">
+        <div class="head-form">
+            <h2>Please sign in</h2>
+        </div>
+        <div class="body-form">
+            <form>
+                <div class="input-email">
+                    <input type="email" id="email" placeholder="Email address" required>
+                </div>
+                <div class="input-pass">
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+
+                <p class="login-as">Log in as:</p>
+
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="option1" name="choice" value="option1">
+                        <label for="option1">Lecturer</label>
+                    </div>
+                    
+                    <div class="radio-item">
+                        <input type="radio" id="option2" name="choice" value="option2">
+                        <label for="option2">Student</label>
+                    </div>
+
+                    <div class="radio-item">
+                        <input type="radio" id="option3" name="choice" value="option3">
+                        <label for="option2">Admin</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn"><p>Log in</p></button>
+            </form>
+        </div>
+    </section>
+</body>
+</html>
