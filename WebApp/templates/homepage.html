@@ -9,7 +9,7 @@
 <body>
     <header class="header">
         <div class="logo-img">
-            <a href="homepage.html"> <img src="{{ url_for('static', filename='./images/logoUSTH.png')}}" alt="logo"> </a> 
+            <img src="{{ url_for('static', filename='./images/logoUSTH.png')}}" alt="logo">
         </div>
 
         <div class="header-text">
@@ -36,7 +36,7 @@
             <h2>Please sign in</h2>
         </div>
         <div class="body-form">
-            <form>
+            <form method="POST">
                 <div class="input-email">
                     <input type="email" id="email" placeholder="Email address" required>
                 </div>
