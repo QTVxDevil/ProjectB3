@@ -1,8 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, RadioField
-from wtforms.validators import DataRequired, Email, Length
-import requests
 import mysql.connector
 
 
@@ -17,24 +13,30 @@ user_auth = mysql.connector.connect(
 )
 
 @app.route('/', methods=['GET', 'POST'])
-def login():
+def homepage():
     if request.method == 'POST':
-        email = request.form['Email address']
+        email = request.form['email']
         password = request.form['password']
-        role = request.form['role']
+        role = request.form['choice']
         
         cursor = user_auth.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE email=%s AND password=%s AND role=%s", (email, password, role))
-        
-        account = cursor.fetchone()
-        
-        if account:
-            return redirect(url_for('Lecturers'))
+
+        # Query the database to verify the credentials
+        cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s AND role = %s", (email, password, role))
+        user = cursor.fetchone()
+
+
+        if user:
+            # If credentials match, render the appropriate template based on the role
+            if role == 'Lecturer':
+                return redirect(url_for('lecturers'))
+            elif role == 'Student':
+                return render_template('#')
         else:
-            flash('Incorrect login credentials. Please try again.')
-    
-    return render_template("homepage.html")
-    
+            # If credentials don't match, flash an error message and redirect to homepage
+            flash('Invalid credentials, please try again.')
+            return redirect(url_for('homepage'))
+    return render_template('homepage.html')
     
 @app.route('/Lecturers')
 def lecturers():

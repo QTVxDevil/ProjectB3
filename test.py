@@ -16,13 +16,12 @@ if connection.is_connected():
     cursor = connection.cursor()
 
     # Execute a query
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM users WHERE email = 'lecturer@usth.edu.vn' AND password = 'password123' AND role = 'Lecturer';")
 
     # Fetch the results
     results = cursor.fetchall()
 
-    for row in results:
-        print(row)
+    print(results)
 
     # Close the cursor and connection
     cursor.close()
