@@ -25,7 +25,7 @@ html{
     top: 0;
     left: 0;
     width: 100%;
-    padding: 3.5%;
+    padding: 3.5% 3%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,38 +34,38 @@ html{
 }
 
 .header-text{
-    top: 0;
     width: 100%;
     display: flex;
-    justify-content: left;
+    justify-content: space-between;
     align-items: center;
-    
+    padding-left: 2%;
 }
 
 .logo-img{
     width: 13%;
-    height: 8rem;
+    height: auto;
 }
 
 .logo-img img{
-    position: static;
+
     width: 100%;
     margin: 5% auto;
+    height: auto;
 }
 
 .vertical-line {
-    position: static;
+    
     border-left: 3px solid red;
-    height: 75px;
-    margin-left: 2%;
+    height: 10vh;
+    margin-right: 2%;
 }
 
 .left{
     position: absolute;
-    font-size: 120%;
+    font-size: 1.5vh;
     text-align: left;
     color: var(--main-color);
-    margin: 4%;
+    margin: 3%;
 
 }
 
@@ -73,7 +73,7 @@ html{
     position: absolute;
     right : 3.5%;
     top: 25%;
-    font-size: 130%;
+    font-size: 1.4vh;
     color: var(--main-color);
     display: flex;
     text-align: center;
@@ -82,7 +82,7 @@ html{
 .boundary{
     background-color: var(--main-color);
     width: 100%;
-    height: 60px;
+    height: 9vh;
     display: flex;
     margin-top: 7%;
 }
@@ -118,26 +118,25 @@ html{
 }
 
 .login-form{
-    width: 40%;
-    height: 20%;
+    width: 80vh;
+    height: 50vh;
     margin: 2% auto;
-
 }
 
 .head-form{
     width: 100%;
-    height: 40px;
+    height: 10vh;
 }
 
 .head-form h2{
-    font-size: 2rem;
-    padding-top: 10px;
+    font-size: 5vh;
+    padding-top: 2.5vh;
 }
 
 .body-form{
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    height: 290px;
+    height: 45vh;
     width: 100%;
     padding: 0;
     margin: 0;
@@ -145,7 +144,7 @@ html{
 }
 
 .input-email {
-    padding-top: 5%;
+    padding-top: 3%;
 }
 
 .input-pass {
@@ -156,7 +155,7 @@ input[type="email"],
 input[type="password"] {
     width: 100%;
     padding: 2rem; 
-    font-size: 1.5rem;
+    font-size: 2vh;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     outline: none;
@@ -172,11 +171,19 @@ input[type="password"]:focus {
 input::placeholder {
     color: #6b7280;
     opacity: 1;
+    font-size: 3vh;
+}
+
+.flashes{
+    color: #e30613;
+    font-size: 2vh;
+    margin-left: 3%;
+    margin-top: 1%;
 }
 
 .login-as{
-    font-size: 2rem;
-    margin-top: 5%;
+    font-size: 3vh;
+    margin-top: 1%;
     margin-bottom: 0;
     margin-left: 1%;
 }
@@ -184,34 +191,41 @@ input::placeholder {
 .radio-group {
     display: flex;
     flex-direction: row; 
+    height: 8vh;
+    
 }
 
 .radio-item {
     display: flex;
     align-items: center;
     margin: 0 auto;
-    padding-top: 2%;
+    padding-top: 0;
     
 }
 
 .radio-item input[type="radio"] {
-    margin-right: 1rem;
+    margin-right: 2vh;
 }
 
 .radio-item label {
-    font-size: 1.8rem;
+    font-size: 3vh;
+}
+
+.end-form{
+    
+    height: 9vh;
 }
 
 .submit-btn {
     display: block; 
     margin: 0 auto; 
     padding: 1rem 5rem;
-    margin-top: 3%;
-    font-size: 1.7rem;
+    margin-top: 0;
+    font-size: 3vh;
     background-color: var(--main-color);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
@@ -243,3 +257,10 @@ input::placeholder {
 .nav-item a{
     color: var(--text-color);
 }
+
+@media screen and (max-width: 480px) {
+    .login-form {
+        width: 90%;
+    }
+}  
+
