@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lecturers</title>
+    <title>attendence</title>
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
     <header class="header">
         <div class="logo-img">
-            <a href="homepage.html"> <img src="{{ url_for('static', filename='./images/logoUSTH.png')}}" alt="logo"> </a> 
+            <img src="{{ url_for('static', filename='./images/logoUSTH.png')}}" alt="logo">
         </div>
 
         <div class="header-text">
@@ -32,13 +32,13 @@
         
         <div class="navbar">
             <div class="nav-item">
-                <a href="#infor">INFORMATION</a>
+                <a href="{{ url_for('information') }}">INFORMATION</a>
             </div>
             <div class="nav-item">
-                <a href="#class">CLASSROOM</a>
+                <a href="{{ url_for('classroom') }}">CLASSROOM</a>
             </div>
             <div class="nav-item">
-                <a href="#check">ATTENDANCE CHECKED</a>
+                <a href="{{ url_for('attendence') }}">ATTENDANCE CHECKED</a>
             </div>
         </div>
     </section>

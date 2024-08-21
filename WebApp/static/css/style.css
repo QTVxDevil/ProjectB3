@@ -114,7 +114,11 @@ html{
 }
 
 .banner p{
-    margin-top: 20%;
+    padding-top: 1.5vh;
+}
+
+.banner a{
+    color: var(--text-color);
 }
 
 .login-form{
@@ -246,7 +250,7 @@ input::placeholder {
     align-items: center; 
     justify-content: center; 
     flex-grow: 1; 
-    font-size: 20px;
+    
     transition: background-color 0.3s ease;
 }
 
@@ -256,6 +260,7 @@ input::placeholder {
 
 .nav-item a{
     color: var(--text-color);
+    font-size: 3vh;
 }
 
 @media screen and (max-width: 480px) {
@@ -264,3 +269,10 @@ input::placeholder {
     }
 }  
 
+.form-class{
+    background-color: #e30613;
+    margin: 2% auto;
+    height: 70vh;
+    width: 60vw;
+
+}
