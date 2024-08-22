@@ -158,7 +158,7 @@ html{
 input[type="email"],
 input[type="password"] {
     width: 100%;
-    padding: 2rem; 
+    padding: 4vh; 
     font-size: 2vh;
     border: 1px solid #d1d5db;
     border-radius: 6px;
@@ -270,9 +270,137 @@ input::placeholder {
 }  
 
 .form-class{
-    background-color: #e30613;
     margin: 2% auto;
-    height: 70vh;
-    width: 60vw;
+    height: 80vh;
+    width: 50vw;
+}
 
+.clr-header{
+    height: 6vh;
+    width: 100%;
+    
+}
+
+.clr-header h2{
+    font-size: 4vh;
+    padding-top: 1%;
+    padding-left: 30%;
+}
+
+.clr-body{
+    height: 60vh;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.clr-form{
+    display: flex;
+    height: 16vh;
+    width: 100%;
+    flex-direction: row; 
+    margin-top: 2%;  
+}
+
+.clr-form-cname{
+    height: 16vh;
+    width: 70%;
+}
+
+.clr-form-major{
+    height: 16vh;
+    width: 30%;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+}
+
+.clr-form-lname{
+    height: 16vh;
+    width: 100%;
+}
+
+.clr-form-date{
+    display: flex;
+    flex-direction: row;
+    height: 16vh;
+    width: 100%;
+}
+
+.date-item{
+    height: 16vh;
+    width: 50%;
+}
+
+label[for="className"],
+label[for="major"],
+label[for="lecturerName"],
+label[for="startDate"],
+label[for="endDate"]{
+    font-size: 3vh;
+    font-weight: bold;
+    padding-left: 1%;
+}
+
+input[type="text"],
+input[type="date"]{
+    width: 100%;
+    padding: 3vh; 
+    font-size: 3vh;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    outline: none;
+    transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 5px rgba(96, 165, 250, 0.5);
+}
+
+select[id="major"]{
+    width: 5vw;
+    height: 6vh;
+    font-size: 2.8vh;
+    margin-left: 5%;
+    padding: 1%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    outline: none;
+    transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+select[id="major"]:focus{
+    border-color: #60a5fa;
+    box-shadow: 0 0 5px rgba(96, 165, 250, 0.5);
+}
+
+.clr-form-submit{
+    height: 10vh;
+    width: 100%;
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+}
+
+.clr-submit-btn{
+    display: block; 
+    margin: 0 auto; 
+    padding: 2vh 5vh;
+    margin-top: 0;
+    font-size: 3vh;
+    background-color: var(--main-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.clr-submit-btn:hover{
+    background-color: #1943fe;
 }

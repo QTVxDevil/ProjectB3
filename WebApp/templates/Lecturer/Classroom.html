@@ -44,7 +44,44 @@
     </section>
 
     <section class="form-class">
-
+        <div class="clr-header">
+            <h2>Create a new classroom</h2>
+        </div>
+        <div class="clr-body">
+            <form method="POST">
+                <div class="clr-form">
+                    <div class="clr-form-cname">
+                        <label for="className">Name of Class:</label><br>
+                        <input type="text" id="className" name="className" required>
+                    </div>
+                    <div class="clr-form-major">
+                        <label for="major">Major:</label>
+                        <select id="major" name="major" required>
+                            <option value="DS">DS</option>
+                            <option value="ICT">ICT</option>
+                            <option value="CS">CS</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="clr-form-lname">
+                    <label for="lecturerName">Name of Lecturer:</label><br>
+                    <input type="text" id="lecturerName" name="lecturerName" required>
+                </div>
+                <div class="clr-form-date">
+                    <div class="date-item">
+                        <label for="startDate">Start Date:</label><br>
+                        <input type="date" id="startDate" name="startDate" required>
+                    </div>
+                    <div class="date-item">
+                        <label for="endDate">End Date:</label><br>
+                        <input type="date" id="endDate" name="endDate" required>
+                    </div>
+                </div>
+                <div class="clr-form-submit">
+                    <button type="submit" class="clr-submit-btn"><p>Log in</p></button>
+                </div>
+            </form>
+        </div>
 
     </section>
 </body>
