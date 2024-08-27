@@ -77,6 +77,17 @@
                         <input type="date" id="endDate" name="endDate" required>
                     </div>
                 </div>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul class="flashes">
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                {% endwith %}
+
                 <div class="clr-form-submit">
                     <button type="submit" class="clr-submit-btn"><p>Log in</p></button>
                 </div>

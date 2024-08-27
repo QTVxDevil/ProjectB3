@@ -5,22 +5,12 @@ app = Flask(__name__)
 app.secret_key = "any-string-you-want-just-keep-it-secret"
 
 
-user_auth = mysql.connector.connect(
-    host="127.0.0.1",  # The IP address of the MySQL server
-    user="root",       # The username for the database
-    password="super123",       # The password for the database (if any, otherwise leave it empty)
-    database="user_auth"  # The database name you want to use
+dtb = mysql.connector.connect(
+    host="127.0.0.1",  
+    user="root",       
+    password="super123",      
+    database="gp2425" 
 )
-
-information = mysql.connector.connect(
-    host="127.0.0.1",  # The IP address of the MySQL server
-    user="root",       # The username for the database
-    password="super123",       # The password for the database (if any, otherwise leave it empty)
-    database="information"
-)
-
-
-
 
 
 
@@ -31,21 +21,19 @@ def homepage():
         password = request.form['password']
         role = request.form['choice']
         
-        cursor = user_auth.cursor(dictionary=True)
+        cursor = dtb.cursor(dictionary=True)
 
-        # Query the database to verify the credentials
-        cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s AND role = %s", (email, password, role))
+        
+        cursor.execute("SELECT * FROM user_auth WHERE email = %s AND password = %s AND role = %s", (email, password, role))
         user = cursor.fetchone()
 
 
         if user:
-            # If credentials match, render the appropriate template based on the role
             if role == 'Lecturer':
                 return redirect(url_for('lecturers'))
             elif role == 'Student':
                 return render_template('#')
         else:
-            # If credentials don't match, flash an error message and redirect to homepage
             flash('Invalid credentials, please try again.')
             return redirect(url_for('homepage'))
     return render_template('homepage.html')
@@ -60,7 +48,32 @@ def information():
 
 @app.route('/classroom', methods=["GET", "POST"])
 def classroom():
+    if request.method == 'POST':
+        class_name = request.form['className']
+        lecturer_name = request.form['lecturerName']
+        major = request.form['major']
+        start_date = request.form['startDate']
+        end_date = request.form['endDate']   
+        
+        cursor = dtb.cursor(dictionary=True)
 
+        cursor.execute("SELECT * FROM classroom WHERE nameofclass = %s AND major = %s", (class_name, major))
+        exist_class = cursor.fetchone()
+        
+        if exist_class:
+            flash('This class already exists !')
+            return redirect('classroom')
+        else:
+            cursor.execute('''
+                INSERT INTO classroom (nameofclass, nameoflecturer, major, begindate, enddate)
+                VALUES (%s, %s, %s, %s, %s)
+            ''', (class_name, lecturer_name, major, start_date, end_date))
+        
+            dtb.commit()
+        
+        
+        return redirect(url_for('information'))       
+        
     return render_template("/Lecturer/Classroom.html")
 
 @app.route('/attendence')
