@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `user_auth` (
     `role` VARCHAR(50) NOT NULL
 );
 
+
 TRUNCATE TABLE `user_auth`;
 
 INSERT INTO `user_auth` (`email`, `password`, `role`) VALUES
@@ -43,4 +44,3 @@ CREATE TABLE IF NOT EXISTS `classroom` (
     `enddate` DATE NOT NULL,
     `nameoflecturer` VARCHAR(100) NOT NULL
 );
-

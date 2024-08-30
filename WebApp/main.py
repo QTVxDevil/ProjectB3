@@ -13,6 +13,19 @@ dtb = mysql.connector.connect(
 )
 
 
+def delete(row_id):
+    cursor = dtb.cursor(dictionary=True)
+    
+    cursor.execute("DELETE FROM classroom WHERE id = %s", (row_id,))
+    dtb.commit()
+    
+    cursor.execute("SET @row_number = 0;")
+    cursor.execute("""
+        UPDATE classroom SET id = (@row_number:=@row_number + 1)
+        ORDER BY id;
+    """)
+    
+    dtb.commit()
 
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
@@ -42,9 +55,24 @@ def homepage():
 def lecturers():
     return redirect(url_for('information'))
 
-@app.route('/information')
+@app.route('/information', methods=['GET', 'POST'])
 def information():
-    return render_template("/Lecturer/Information.html")
+    if request.method == 'POST':
+        row_id = request.form['row_id']
+        action = request.form['action']
+
+        if action == 'delete':
+            delete(row_id)
+            return redirect(url_for('information'))
+
+    
+    cursor = dtb.cursor()
+    cursor.execute("SELECT * FROM classroom")
+    
+    classroom_data = cursor.fetchall()
+    
+    return render_template("/Lecturer/Information.html", classroom_data=classroom_data)
+
 
 @app.route('/classroom', methods=["GET", "POST"])
 def classroom():
@@ -68,10 +96,16 @@ def classroom():
                 INSERT INTO classroom (nameofclass, nameoflecturer, major, begindate, enddate)
                 VALUES (%s, %s, %s, %s, %s)
             ''', (class_name, lecturer_name, major, start_date, end_date))
-        
+            
             dtb.commit()
         
-        
+        cursor.execute("SET @row_number = 0;")
+        cursor.execute("""
+            UPDATE classroom SET id = (@row_number:=@row_number + 1)
+            ORDER BY id;
+        """)
+    
+        dtb.commit()
         return redirect(url_for('information'))       
         
     return render_template("/Lecturer/Classroom.html")

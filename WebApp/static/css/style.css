@@ -404,3 +404,42 @@ select[id="major"]:focus{
 .clr-submit-btn:hover{
     background-color: #1943fe;
 }
+
+.table-information{
+    
+    width: 95vw;
+    height: 65vh;
+    margin: 0 auto;
+    margin-top: 7vh;
+}
+
+.table-information table{
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 0.3vh solid black; /* Adds a 1px solid black border to each cell */
+    padding: 3.5vh; /* Adds padding inside cells for better readability */
+    font-size: 3vh;
+}
+th {
+    background-color: #f2f2f2; /* Optional: adds a light grey background for headers */
+}
+
+.view-button {
+    background-color: rgb(30, 215, 73);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
