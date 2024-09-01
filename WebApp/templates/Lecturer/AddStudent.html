@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AddStudent</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo-img">
+            <img src="{{ url_for('static', filename='./images/logoUSTH.png')}}" alt="logo">
+        </div>
+
+        <div class="header-text">
+            <div class="vertical-line"></div>
+            <div class="left">
+                <h1><b>UNIVERSITY OF<br>
+                       SCIENCE AND TECHNOLOGY<br>
+                       OF HA NOI</b></h1>
+            </div>
+            <div class="right">
+                <h1><b>ATTENDANCE<br>MANAGEMENT</b></h1>
+            </div>
+        </div>
+    </header>
+
+    <section class="boundary">
+        <div class="banner">
+            <p><a href="{{ url_for('homepage') }}">HOME</a></p>
+        </div>
+        
+        <div class="navbar">
+            <div class="nav-item">
+                <a href="{{ url_for('information') }}">INFORMATION</a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('classroom') }}">CLASSROOM</a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('attendence') }}">ATTENDANCE CHECKED</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="std-information">
+        <div class="std-add-btn">
+            <form method="POST">
+                <input type="file" name="file" id="fileInput" style="display:none;" 
+                   accept=".xlsx, .csv" onchange="this.form.submit()">
+                <button type="submit" onclick="document.getElementById('fileInput').click();" class="add-btn">Upload file</button>
+            </form>
+        </div>
+
+        <div class="std-add-form">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Student name</th>
+                        <th>Student id</th>
+                        <th>Major</th>
+                        <th>Face id</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+        </div>
+    </section>
+</body>
+</html>

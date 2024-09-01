@@ -44,3 +44,15 @@ CREATE TABLE IF NOT EXISTS `classroom` (
     `enddate` DATE NOT NULL,
     `nameoflecturer` VARCHAR(100) NOT NULL
 );
+
+-- --------------------------- student_information -----------------------------
+
+CREATE TABLE IF NOT EXISTS `student_information` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `student_name` VARCHAR(100) NOT NULL,
+    `student_id` VARCHAR(50) NOT NULL UNIQUE,
+    `major` VARCHAR(10) NOT NULL,
+    `face_id` VARCHAR(255) NOT NULL,
+    `classroom_id` INT,
+    FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
+); 

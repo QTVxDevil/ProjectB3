@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
 import mysql.connector
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = "any-string-you-want-just-keep-it-secret"
@@ -64,6 +65,8 @@ def information():
         if action == 'delete':
             delete(row_id)
             return redirect(url_for('information'))
+        if action =='view':
+            return redirect(url_for('addstudent'))
 
     
     cursor = dtb.cursor()
@@ -109,6 +112,10 @@ def classroom():
         return redirect(url_for('information'))       
         
     return render_template("/Lecturer/Classroom.html")
+
+@app.route('/addstudent', methods=["GET", "POST"])
+def addstudent():
+    return render_template("/Lecturer/AddStudent.html")
 
 @app.route('/attendence')
 def attendence():

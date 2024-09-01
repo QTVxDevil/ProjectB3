@@ -140,7 +140,7 @@ html{
 .body-form{
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    height: 45vh;
+    height: 48vh;
     width: 100%;
     padding: 0;
     margin: 0;
@@ -406,7 +406,6 @@ select[id="major"]:focus{
 }
 
 .table-information{
-    
     width: 95vw;
     height: 65vh;
     margin: 0 auto;
@@ -420,12 +419,12 @@ select[id="major"]:focus{
 }
 
 th, td {
-    border: 0.3vh solid black; /* Adds a 1px solid black border to each cell */
-    padding: 3.5vh; /* Adds padding inside cells for better readability */
+    border: 0.3vh solid black; 
+    padding: 2.5vh; 
     font-size: 3vh;
 }
 th {
-    background-color: #f2f2f2; /* Optional: adds a light grey background for headers */
+    background-color: #f2f2f2; 
 }
 
 .view-button {
@@ -442,4 +441,39 @@ th {
     border: none;
     padding: 5px 10px;
     cursor: pointer;
+}
+
+.std-information{
+    width: 95vw;
+    height: 65vh;
+    margin: 0 auto;
+    margin-top: 7vh;
+}
+
+.std-add-btn{
+    width: 10%;
+    height: 8%;
+}
+
+.add-btn{
+    background-color: var(--main-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin: 0 auto;
+    display: flex;
+    font-size: 3vh;
+    border-radius: 1vh;
+}
+
+.add-btn:hover{
+    background-color: #1943fe;
+}
+
+.std-add-form table{
+    margin-top: 1vh;
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
 }
