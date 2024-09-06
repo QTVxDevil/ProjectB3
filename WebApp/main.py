@@ -66,6 +66,7 @@ def information():
             delete(row_id)
             return redirect(url_for('information'))
         if action =='view':
+            print('row id: ', row_id)
             return redirect(url_for('addstudent'))
 
     
@@ -114,8 +115,53 @@ def classroom():
     return render_template("/Lecturer/Classroom.html")
 
 @app.route('/addstudent', methods=["GET", "POST"])
-def addstudent():
-    return render_template("/Lecturer/AddStudent.html")
+def addstudent():    
+    if request.method == "POST":
+        file = request.files.get('file')
+        if file:
+            try:
+                if file.filename.endswith('.csv'):
+                    df = pd.read_csv(file)
+                elif file.filename.endswith('.xlsx'):
+                    df = pd.read_excel(file)
+                else:
+                    flash("Unsupported file format.", "danger")
+                    return redirect(url_for('addstudent'))
+                 
+                new_students = []
+                for _, row in df.iterrows():
+                    cursor.execute(
+                        "SELECT * FROM student_information WHERE student_id = %s", (row['Student id'],)
+                    )
+                    existing_record = cursor.fetchone()
+                    
+                    if not existing_record:
+                        cursor.execute(
+                            "INSERT INTO student_information (student_name, student_id, major) VALUES (%s, %s, %s)",
+                            (row['Student name'], row['Student id'], row['Major'])
+                        )
+                        new_students.append((row['Student name'], row['Student id']))
+                    dtb.commit()
+                if new_students:
+                    for student_name, student_id in new_students:
+                        flash(f'Student {student_name} (ID: {student_id}) has been inserted into the database.')
+                else:
+                    flash('No new students were added.')
+                return redirect(url_for('addstudent'))
+            
+
+            except Exception as e:
+                flash(f"An error occurred: {str(e)}", "danger")
+                return redirect(url_for('addstudent'))
+        else:
+            flash("No file selected.", "warning")
+            return redirect(url_for('addstudent'))
+    
+    cursor = dtb.cursor()   
+    cursor.execute("SELECT * FROM student_information")
+    students = cursor.fetchall()
+           
+    return render_template("/Lecturer/AddStudent.html", students=students)
 
 @app.route('/attendence')
 def attendence():

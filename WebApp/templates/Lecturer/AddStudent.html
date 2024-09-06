@@ -45,11 +45,24 @@
 
     <section class="std-information">
         <div class="std-add-btn">
-            <form method="POST">
-                <input type="file" name="file" id="fileInput" style="display:none;" 
-                   accept=".xlsx, .csv" onchange="this.form.submit()">
-                <button type="submit" onclick="document.getElementById('fileInput').click();" class="add-btn">Upload file</button>
-            </form>
+            <div class="std-btn">
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="file" name="file" id="fileInput" style="display:none;" accept=".xlsx, .csv" onchange="this.form.submit()">
+                    <button type="button" onclick="document.getElementById('fileInput').click();" class="add-btn">Upload file</button>
+                </form>
+            </div>
+
+            <div class="std-flash">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul class="flashes">
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+            </div>
         </div>
 
         <div class="std-add-form">
@@ -61,11 +74,19 @@
                         <th>Student id</th>
                         <th>Major</th>
                         <th>Face id</th>
-                        <th>Status</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    {% for row in students %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                        <td>{{ row[4] }}</td>
+                        
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
