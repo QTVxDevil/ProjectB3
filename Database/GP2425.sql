@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `student_information` (
     `student_name` VARCHAR(100) NOT NULL,
     `student_id` VARCHAR(50) NOT NULL UNIQUE,
     `major` VARCHAR(10) NOT NULL,
-    `face_id` VARCHAR(255) NOT NULL,
+    `face_id` VARCHAR(255),
     `classroom_id` INT,
     FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 ); 

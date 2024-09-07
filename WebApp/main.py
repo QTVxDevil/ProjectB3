@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, session
 import mysql.connector
 import pandas as pd
 
@@ -66,7 +66,7 @@ def information():
             delete(row_id)
             return redirect(url_for('information'))
         if action =='view':
-            print('row id: ', row_id)
+            session['classroom_id'] = row_id
             return redirect(url_for('addstudent'))
 
     
@@ -115,9 +115,13 @@ def classroom():
     return render_template("/Lecturer/Classroom.html")
 
 @app.route('/addstudent', methods=["GET", "POST"])
-def addstudent():    
+def addstudent(): 
+    classroom_id = session.get('classroom_id')
+    
     if request.method == "POST":
         file = request.files.get('file')
+
+        
         if file:
             try:
                 if file.filename.endswith('.csv'):
@@ -128,20 +132,24 @@ def addstudent():
                     flash("Unsupported file format.", "danger")
                     return redirect(url_for('addstudent'))
                  
+                cursor = dtb.cursor()
                 new_students = []
                 for _, row in df.iterrows():
                     cursor.execute(
-                        "SELECT * FROM student_information WHERE student_id = %s", (row['Student id'],)
+                        "SELECT * FROM student_information WHERE student_id = %s AND classroom_id = %s", (row['Student id'], classroom_id)
                     )
                     existing_record = cursor.fetchone()
                     
                     if not existing_record:
                         cursor.execute(
-                            "INSERT INTO student_information (student_name, student_id, major) VALUES (%s, %s, %s)",
-                            (row['Student name'], row['Student id'], row['Major'])
+                            "INSERT INTO student_information (student_name, student_id, major, classroom_id) VALUES (%s, %s, %s, %s)",
+                            (row['Student name'], row['Student id'], row['Major'], classroom_id)
                         )
                         new_students.append((row['Student name'], row['Student id']))
+                        
+                        
                     dtb.commit()
+                
                 if new_students:
                     for student_name, student_id in new_students:
                         flash(f'Student {student_name} (ID: {student_id}) has been inserted into the database.')
@@ -156,10 +164,18 @@ def addstudent():
         else:
             flash("No file selected.", "warning")
             return redirect(url_for('addstudent'))
-    
+        
     cursor = dtb.cursor()   
-    cursor.execute("SELECT * FROM student_information")
+    cursor.execute("SELECT * FROM student_information WHERE classroom_id = %s", (classroom_id,))
     students = cursor.fetchall()
+    
+    cursor.execute("SET @row_number = 0;")
+    cursor.execute("""
+        UPDATE student_information SET id = (@row_number:=@row_number + 1)
+        ORDER BY id;
+    """)
+    
+    dtb.commit()
            
     return render_template("/Lecturer/AddStudent.html", students=students)
 
