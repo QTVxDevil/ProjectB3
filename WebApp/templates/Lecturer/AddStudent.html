@@ -80,12 +80,12 @@
                 <tbody>
                     {% for row in students %}
                     <tr>
-                        <td>{{ row[0] }}</td>
-                        <td>{{ row[1] }}</td>
-                        <td>{{ row[2] }}</td>
-                        <td>{{ row[3] }}</td>
-                        <td>{{ row[4] }}</td>
-                        
+                        <td>{{ loop.index }}</td> <!-- Display row index (STT) -->
+                        <td>{{ row[1] }}</td> <!-- Student Name -->
+                        <td>{{ row[0] }}</td> <!-- Student ID -->
+                        <td>{{ row[2] }}</td> <!-- Major -->
+                        <td>{{ row[3] }}</td> <!-- Face ID -->
+                    </tr>   
                     {% endfor %}
                 </tbody>
             </table>

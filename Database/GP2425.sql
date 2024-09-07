@@ -56,3 +56,14 @@ CREATE TABLE IF NOT EXISTS `student_information` (
     `classroom_id` INT,
     FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 ); 
+
+-- --------------------------- student_classroom --------------------------------
+
+CREATE TABLE `student_classroom` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `student_id` VARCHAR(50) NOT NULL,
+    `classroom_id` INT,
+    UNIQUE(`student_id`, `classroom_id`),
+    FOREIGN KEY (`student_id`) REFERENCES `student_information`(`student_id`),
+    FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
+);

@@ -134,27 +134,45 @@ def addstudent():
                  
                 cursor = dtb.cursor()
                 new_students = []
+                updated_classrooms = []
                 for _, row in df.iterrows():
                     cursor.execute(
-                        "SELECT * FROM student_information WHERE student_id = %s AND classroom_id = %s", (row['Student id'], classroom_id)
+                        "SELECT * FROM student_information WHERE student_id = %s", (row['Student id'],)
                     )
-                    existing_record = cursor.fetchone()
+                    existing_student = cursor.fetchone()
                     
-                    if not existing_record:
+                    if not existing_student:
                         cursor.execute(
-                            "INSERT INTO student_information (student_name, student_id, major, classroom_id) VALUES (%s, %s, %s, %s)",
-                            (row['Student name'], row['Student id'], row['Major'], classroom_id)
+                            "INSERT INTO student_information (student_name, student_id, major) VALUES (%s, %s, %s)",
+                            (row['Student name'], row['Student id'], row['Major'])
                         )
                         new_students.append((row['Student name'], row['Student id']))
+                        dtb.commit()
                         
+                    cursor.execute(
+                        "SELECT * FROM student_classroom WHERE student_id = %s AND classroom_id = %s",
+                        (row['Student id'], classroom_id)
+                    )
+                    existing_classroom = cursor.fetchone()    
                         
-                    dtb.commit()
+                    if not existing_classroom:
+                        cursor.execute(
+                            "INSERT INTO student_classroom (student_id, classroom_id) "
+                            "VALUES (%s, %s)",
+                            (row['Student id'], classroom_id)
+                        )
+                        updated_classrooms.append((row['Student name'], row['Student id']))
+                dtb.commit()
                 
                 if new_students:
                     for student_name, student_id in new_students:
                         flash(f'Student {student_name} (ID: {student_id}) has been inserted into the database.')
-                else:
-                    flash('No new students were added.')
+                if updated_classrooms:
+                    for student_name, student_id in updated_classrooms:
+                        flash(f'Student {student_name} (ID: {student_id}) has been added to classroom {classroom_id}.')
+                if not new_students and not updated_classrooms:
+                    flash('No new students were added or updated.')
+
                 return redirect(url_for('addstudent'))
             
 
@@ -166,7 +184,12 @@ def addstudent():
             return redirect(url_for('addstudent'))
         
     cursor = dtb.cursor()   
-    cursor.execute("SELECT * FROM student_information WHERE classroom_id = %s", (classroom_id,))
+    cursor.execute("""
+        SELECT s.student_id, s.student_name, s.major, s.face_id
+        FROM student_information s
+        JOIN student_classroom sc ON s.student_id = sc.student_id
+        WHERE sc.classroom_id = %s
+    """, (classroom_id,))
     students = cursor.fetchall()
     
     cursor.execute("SET @row_number = 0;")
