@@ -36,28 +36,34 @@ def homepage():
         role = request.form['choice']
         
         cursor = dtb.cursor(dictionary=True)
-
-        
         cursor.execute("SELECT * FROM user_auth WHERE email = %s AND password = %s AND role = %s", (email, password, role))
-        user = cursor.fetchone()
-
-
+        user = cursor.fetchone()     
+        session['nameoflecturer'] = user['nameoflecturer']
+        session['student_id'] = user['student_id']
         if user:
             if role == 'Lecturer':
                 return redirect(url_for('lecturers'))
             elif role == 'Student':
-                return render_template('#')
+                return redirect(url_for('students'))
         else:
             flash('Invalid credentials, please try again.')
             return redirect(url_for('homepage'))
+    
     return render_template('homepage.html')
     
 @app.route('/Lecturers')
 def lecturers():
     return redirect(url_for('information'))
 
+@app.route('/Students')
+def students():
+    return redirect(url_for('std_information'))
+
 @app.route('/information', methods=['GET', 'POST'])
 def information():
+    name = session.get('nameoflecturer')
+    print(f'Name: {name}')
+    
     if request.method == 'POST':
         row_id = request.form['row_id']
         action = request.form['action']
@@ -68,10 +74,9 @@ def information():
         if action =='view':
             session['classroom_id'] = row_id
             return redirect(url_for('addstudent'))
-
-    
+        
     cursor = dtb.cursor()
-    cursor.execute("SELECT * FROM classroom")
+    cursor.execute("SELECT * FROM classroom WHERE nameoflecturer = %s", (name,))
     
     classroom_data = cursor.fetchall()
     
@@ -121,7 +126,6 @@ def addstudent():
     if request.method == "POST":
         file = request.files.get('file')
 
-        
         if file:
             try:
                 if file.filename.endswith('.csv'):
@@ -205,6 +209,10 @@ def addstudent():
 @app.route('/attendence')
 def attendence():
     return render_template("/Lecturer/Attendence.html")
+
+@app.route('/std_information')
+def std_information():
+    return render_template('/Student/information.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

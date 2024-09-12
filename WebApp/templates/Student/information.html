@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>information</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo-img">
+            <img src="{{ url_for('static', filename='./images/logoUSTH.png')}}" alt="logo">
+        </div>
+
+        <div class="header-text">
+            <div class="vertical-line"></div>
+            <div class="left">
+                <h1><b>UNIVERSITY OF<br>
+                       SCIENCE AND TECHNOLOGY<br>
+                       OF HA NOI</b></h1>
+            </div>
+            <div class="right">
+                <h1><b>ATTENDANCE<br>MANAGEMENT</b></h1>
+            </div>
+        </div>
+    </header>
+
+    <section class="boundary">
+        <div class="banner">
+            <p><a href="{{ url_for('homepage') }}">HOME</a></p>
+        </div>
+        
+        <div class="navbar">
+            <div class="nav-item">
+                <a href="{{ url_for('std_information') }}">INFORMATION</a>
+            </div>
+
+            <div class="nav-item">
+                <a href="#">ATTENDANCE CHECKED</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-information">
+        <table>
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Subject</th>
+                    <th>Major</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Lecturer</th>
+                    <th>Action </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in classroom_data %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>{{ row[5] }}</td>
+                    <td>
+                        <form method="POST">
+                            <input type="hidden" name="row_id" value="{{ row[0] }}">
+                            <button type="submit" name="action" value="view" class="view-button">View</button>
+                            <button type="submit" name="action" value="delete" class="delete-button">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</body>
+</html>
