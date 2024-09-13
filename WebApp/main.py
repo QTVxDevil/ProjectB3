@@ -37,7 +37,11 @@ def homepage():
         
         cursor = dtb.cursor(dictionary=True)
         cursor.execute("SELECT * FROM user_auth WHERE email = %s AND password = %s AND role = %s", (email, password, role))
-        user = cursor.fetchone()     
+        user = cursor.fetchone()  
+        
+        if not user:
+            flash('Invalid credentials, please try again.')
+            return redirect(url_for('homepage'))   
         session['nameoflecturer'] = user['nameoflecturer']
         session['student_id'] = user['student_id']
         if user:
@@ -45,9 +49,7 @@ def homepage():
                 return redirect(url_for('lecturers'))
             elif role == 'Student':
                 return redirect(url_for('students'))
-        else:
-            flash('Invalid credentials, please try again.')
-            return redirect(url_for('homepage'))
+        
     
     return render_template('homepage.html')
     
@@ -62,8 +64,7 @@ def students():
 @app.route('/information', methods=['GET', 'POST'])
 def information():
     name = session.get('nameoflecturer')
-    print(f'Name: {name}')
-    
+        
     if request.method == 'POST':
         row_id = request.form['row_id']
         action = request.form['action']
@@ -210,9 +211,28 @@ def addstudent():
 def attendence():
     return render_template("/Lecturer/Attendence.html")
 
-@app.route('/std_information')
+@app.route('/std_information', methods=['GET', 'POST'])
 def std_information():
-    return render_template('/Student/information.html')
+    std_id = session.get('student_id')
+    
+    if request.method == "POST":
+        row_id = request.form['row_id']
+        action = request.form['action']
+        if action == "view":
+            return redirect(url_for('std_information'))
+    cursor = dtb.cursor()
+    query = """
+    SELECT c.id, c.nameofclass, c.major, c.begindate, c.enddate, c.nameoflecturer
+    FROM student_classroom sc
+    JOIN classroom c ON sc.classroom_id = c.id
+    JOIN student_information si ON sc.student_id = si.student_id
+    WHERE si.student_id = %s
+    """
+    cursor.execute(query, (std_id,))
+    
+    student_data = cursor.fetchall()    
+    
+    return render_template('/Student/information.html', student_data=student_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
