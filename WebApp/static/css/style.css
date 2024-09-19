@@ -489,3 +489,19 @@ th {
     text-align: center;
     border-collapse: collapse;
 }
+
+.face{
+    height: 50vh;
+    width: 50vw;
+    margin: 0 auto;
+    margin-top: 5vh;
+}
+
+.face-scan{
+    background-color:rgb(30, 215, 73);
+    height: 100%;
+    width: 100%;
+}
+
+
+

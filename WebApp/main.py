@@ -1,6 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask import Flask, render_template, redirect, url_for, request, flash, session, Response
 import mysql.connector
 import pandas as pd
+import cv2
 
 app = Flask(__name__)
 app.secret_key = "any-string-you-want-just-keep-it-secret"
@@ -12,7 +13,6 @@ dtb = mysql.connector.connect(
     password="super123",      
     database="gp2425" 
 )
-
 
 def delete(row_id):
     cursor = dtb.cursor(dictionary=True)
@@ -27,6 +27,19 @@ def delete(row_id):
     """)
     
     dtb.commit()
+    
+camera = cv2.VideoCapture(0)
+def generateFrames():
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
 
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
@@ -233,6 +246,16 @@ def std_information():
     student_data = cursor.fetchall()    
     
     return render_template('/Student/information.html', student_data=student_data)
+
+@app.route('/facescan', methods=['GET', 'POST'])
+def facescan():
+    return render_template('/Student/facescan.html')
+
+@app.route('/video_feed')
+def video_feed():
+    # Return a streaming response from the camera frames
+    return Response(generateFrames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run(debug=True)
