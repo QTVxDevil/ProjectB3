@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, ses
 import mysql.connector
 import pandas as pd
 import cv2
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "any-string-you-want-just-keep-it-secret"
@@ -220,9 +221,28 @@ def addstudent():
            
     return render_template("/Lecturer/AddStudent.html", students=students)
 
-@app.route('/attendence')
-def attendence():
-    return render_template("/Lecturer/Attendence.html")
+@app.route('/attandence', methods=['GET', 'POST'])
+def attendance():
+    name = session.get('nameoflecturer')
+    if request.method == "POST":
+        row_id = request.form['row_id']
+        action = request.form['action']
+        
+        print(f'row id: {row_id}')
+        if action =='view':
+            now = datetime.now()
+            currentDate = now.strftime("%Y-%m-%d")
+            currentTime = now.strftime("%H:%M")
+            
+            print(f'Date: {currentDate}\nTime: {currentTime}')
+            
+            return render_template("/Lecturer/attendance_information.html", currentDate=currentDate, currentTime=currentTime)
+    
+    cursor = dtb.cursor()
+    cursor.execute("SELECT * FROM classroom WHERE nameoflecturer = %s", (name,))
+    classroom_data = cursor.fetchall()
+    return render_template("/Lecturer/Attendance.html", classroom_data=classroom_data)
+
 
 @app.route('/std_information', methods=['GET', 'POST'])
 def std_information():
@@ -253,7 +273,10 @@ def facescan():
 
 @app.route('/video_feed')
 def video_feed():
-    # Return a streaming response from the camera frames
+    # Design a frame to display camera into website
+    # Require:
+    # + A frame in center of this page
+    # + 
     return Response(generateFrames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 

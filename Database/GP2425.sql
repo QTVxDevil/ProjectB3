@@ -24,7 +24,7 @@ ON DUPLICATE KEY UPDATE
  `password` = VALUES(`password`),
  `role` = VALUES(`role`);
  
- 
+
 ALTER TABLE `user_auth`
 ADD COLUMN `nameoflecturer` VARCHAR(50);
 

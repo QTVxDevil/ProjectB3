@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AddStudent</title>
+    <title>Checking</title>
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
@@ -27,7 +27,7 @@
 
     <section class="boundary">
         <div class="banner">
-            <p><a href="{{ url_for('homepage') }}">HOME</a></p>
+            <p>HOME</p>
         </div>
         
         <div class="navbar">
@@ -43,16 +43,12 @@
         </div>
     </section>
 
-    <section class="std-information">
-        <div class="std-add-btn">
-            <div class="std-btn">
-                <form method="POST" enctype="multipart/form-data">
-                    <input type="file" name="file" id="fileInput" style="display:none;" accept=".xlsx, .csv" onchange="this.form.submit()">
-                    <button type="button" onclick="document.getElementById('fileInput').click();" class="add-btn">Upload file</button>
-                </form>
+    <section class="att-infor">
+        <div class="attendance-create-btn-form">
+            <div class="attendance-create-btn">
+                <button id="create-btn" class="att-create-btn" onclick="showForm()">Create checking</button>
             </div>
-
-            <div class="std-flash">
+            <div class="attendance-flash">
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         <ul class="flashes">
@@ -65,31 +61,33 @@
             </div>
         </div>
 
-        <div class="std-add-form">
-            <table>
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Student name</th>
-                        <th>Student id</th>
-                        <th>Major</th>
-                        <th>Face id</th>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in students %}
-                    <tr>
-                        <td>{{ loop.index }}</td> <!-- Display row index (STT) -->
-                        <td>{{ row[1] }}</td> <!-- Student Name -->
-                        <td>{{ row[0] }}</td> <!-- Student ID -->
-                        <td>{{ row[2] }}</td> <!-- Major -->
-                        <td>{{ row[3] }}</td> <!-- Face ID -->
-                    </tr>   
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div id="attendance-form" class="form-box" style="display: none;">
+            <form>
+                <label for="date"><b>Date:</b></label><br>
+                
+                <input type="date" id="date" name="date" value="{{ currentDate }}"><br><br>
+                
+                <label for="time"><b>Time:</b></label><br>
+                
+                <input type="time" id="time" name="time" value="{{ currentTime }}"><br><br>
+                
+                <label for="place"><b>Place:</b></label><br>
+                <input type="text" id="place" name="place" placeholder="Enter location"><br><br>
+                
+                <button type="submit">Submit</button>
+            </form>
         </div>
     </section>
+    <script>
+        function showForm() {
+            var form = document.getElementById("attendance-form");
+            if (form.style.display === "none") {
+                form.style.display = "block";
+            } else {
+                form.style.display = "none";
+            }
+        }
+    </script>
+        
 </body>
 </html>

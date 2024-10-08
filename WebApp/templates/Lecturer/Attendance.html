@@ -38,11 +38,45 @@
                 <a href="{{ url_for('classroom') }}">CLASSROOM</a>
             </div>
             <div class="nav-item">
-                <a href="{{ url_for('attendence') }}">ATTENDANCE CHECKED</a>
+                <a href="{{ url_for('attendance') }}">ATTENDANCE CHECKED</a>
             </div>
         </div>
     </section>
 
+    <section class="table-information">
+        <table>
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Subject</th>
+                    <th>Major</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Lecturer</th>
+                    <th>Action </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in classroom_data %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>{{ row[5] }}</td>
+                    <td>
+                        <form method="POST">
+                            <input type="hidden" name="row_id" value="{{ row[0] }}">
+                            <button type="submit" name="action" value="view" class="view-button">View</button>
+                            
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
     
 </body>
 </html>
