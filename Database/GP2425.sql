@@ -74,3 +74,14 @@ CREATE TABLE IF NOT EXISTS `student_classroom` (
     FOREIGN KEY (`student_id`) REFERENCES `student_information`(`student_id`),
     FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 );
+
+-- ---------------------------- attendance_checked ------------------------------
+
+CREATE TABLE IF NOT EXISTS `attendance_checked` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY,
+    `date` DATE NOT NULL,
+    `time` TIME NOT NULL,
+    `place` VARCHAR(50) NOT NULL,
+    `classroom_id` INT,
+    FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
+);
