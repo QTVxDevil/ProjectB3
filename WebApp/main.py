@@ -227,21 +227,44 @@ def attendance():
     if request.method == "POST":
         row_id = request.form['row_id']
         action = request.form['action']
+        session['classroom_id'] = row_id
         
-        print(f'row id: {row_id}')
         if action =='view':
-            now = datetime.now()
-            currentDate = now.strftime("%Y-%m-%d")
-            currentTime = now.strftime("%H:%M")
             
-            print(f'Date: {currentDate}\nTime: {currentTime}')
-            
-            return render_template("/Lecturer/attendance_information.html", currentDate=currentDate, currentTime=currentTime)
-    
+            return redirect(url_for('attendance_information'))
+        
     cursor = dtb.cursor()
     cursor.execute("SELECT * FROM classroom WHERE nameoflecturer = %s", (name,))
     classroom_data = cursor.fetchall()
     return render_template("/Lecturer/Attendance.html", classroom_data=classroom_data)
+
+@app.route('/attendance information', methods=['GET', 'POST'])
+def attendance_information():
+    classroom_id = session.get('classroom_id')
+    
+    if request.method == 'POST':
+        date = request.form['date']
+        time = request.form['time']
+        place = request.form['place']
+        
+        try: 
+            cursor = dtb.cursor()
+            cursor.execute("INSERT INTO attendance_checked (date, time, place, classroom_id) VALUES (%s, %s, %s, %s)",
+                           (date, time, place, classroom_id,))
+            dtb.commit()
+            flash("Attendance record successfully created!")
+        except Exception as e:
+            flash(f"Error: {e}")
+        return redirect(url_for('attendance_information'))
+    
+    now = datetime.now()
+    currentDate = now.strftime("%Y-%m-%d")
+    currentTime = now.strftime("%H:%M")
+    
+    cursor = dtb.cursor()
+    cursor.execute("SELECT id, date, time, place FROM attendance_checked")
+    checked = cursor.fetchall()    
+    return render_template("/Lecturer/attendance_information.html", currentDate=currentDate, currentTime=currentTime, checked=checked)
 
 
 @app.route('/std_information', methods=['GET', 'POST'])
