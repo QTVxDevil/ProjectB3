@@ -82,6 +82,6 @@ CREATE TABLE IF NOT EXISTS `attendance_checked` (
     `date` DATE NOT NULL,
     `time` TIME NOT NULL,
     `place` VARCHAR(50) NOT NULL,
-    `classroom_id` INT,
+    `classroom_id` INT NOT NULL,
     FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 );

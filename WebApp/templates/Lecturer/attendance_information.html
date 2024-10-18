@@ -86,7 +86,7 @@
                         <th>Date</th>
                         <th>Time</th>
                         <th>Place</th>
-                        <th>Action</th>
+                        <th class="att-th-form">Action</th>
                         
                     </tr>
                 </thead>
@@ -94,9 +94,16 @@
                     {% for row in checked %}
                     <tr>
                         <td>{{ loop.index }}</td> <!-- Display row index (STT) -->
-                        <td>{{ row[1] }}</td> <!-- Student Name -->
-                        <td>{{ row[2] }}</td> <!-- Student ID -->
-                        <td>{{ row[3] }}</td> <!-- Major -->
+                        <td>{{ row[1] }}</td> <!-- Date -->
+                        <td>{{ row[2] }}</td> <!-- Time -->
+                        <td>{{ row[3] }}</td> <!-- Place -->
+                        <td>
+                            <form method="POST">
+                                <input type="hidden" name="row_id" value="{{ row[0] }}">
+                                <button type="submit" name="action" value="view" class="att-view-button">View</button>
+                                <button type="submit" name="action" value="delete" class="att-delete-button">Delete</button>
+                            </form>
+                        </td>
                     </tr>   
                     {% endfor %}
                 </tbody>

@@ -15,6 +15,7 @@ dtb = mysql.connector.connect(
     database="gp2425" 
 )
 
+
 def delete(row_id):
     cursor = dtb.cursor(dictionary=True)
     
@@ -82,8 +83,8 @@ def information():
     if request.method == 'POST':
         row_id = request.form['row_id']
         action = request.form['action']
-
-        if action == 'delete':
+        
+        if action == 'delete':    
             delete(row_id)
             return redirect(url_for('information'))
         if action =='view':
@@ -299,7 +300,8 @@ def video_feed():
     # Design a frame to display camera into website
     # Require:
     # + A frame in center of this page
-    # + 
+    # + add drop window when user completed scanface
+    # + make a loop to checking face od user when recognized
     return Response(generateFrames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 

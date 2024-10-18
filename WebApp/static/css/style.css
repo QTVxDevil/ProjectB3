@@ -565,6 +565,26 @@ th {
     border-collapse: collapse;
 }
 
+.att-th-form {
+    width: 15vw;
+}
+
+.att-view-button {
+    background-color: rgb(30, 215, 73);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.att-delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
 .face{
     height: 50vh;
     width: 50vw;
