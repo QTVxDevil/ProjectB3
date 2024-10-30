@@ -263,7 +263,7 @@ def attendance_information():
     currentTime = now.strftime("%H:%M")
     
     cursor = dtb.cursor()
-    cursor.execute("SELECT id, date, time, place FROM attendance_checked")
+    cursor.execute("SELECT id, date, time, place FROM attendance_checked WHERE classroom_id = %s", (classroom_id,))
     checked = cursor.fetchall()    
     return render_template("/Lecturer/attendance_information.html", currentDate=currentDate, currentTime=currentTime, checked=checked)
 

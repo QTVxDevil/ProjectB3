@@ -75,6 +75,12 @@ CREATE TABLE IF NOT EXISTS `student_classroom` (
     FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 );
 
+-- ALTER TABLE `student_classroom`
+-- ADD CONSTRAINT `fk_classroom`
+-- FOREIGN KEY (`classroom_id`)
+-- REFERENCES `classroom`(`id`)	
+-- ON DELETE CASCADE;
+
 -- ---------------------------- attendance_checked ------------------------------
 
 CREATE TABLE IF NOT EXISTS `attendance_checked` (
@@ -85,3 +91,21 @@ CREATE TABLE IF NOT EXISTS `attendance_checked` (
     `classroom_id` INT NOT NULL,
     FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 );
+
+-- ---------------------------- handle deleted classroom feature ------------------
+
+ALTER TABLE `attendance_checked`
+DROP FOREIGN KEY `attendance_checked_ibfk_1`,
+ADD CONSTRAINT `checked_ibfk_1`
+FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
+ON DELETE CASCADE;
+
+ALTER TABLE `student_classroom`
+DROP FOREIGN KEY `student_classroom_ibfk_2`,
+ADD CONSTRAINT `classroom_ibfk_2`
+FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
+ON DELETE CASCADE;
+
+
+-- ---------------------------- student_attendance ---------------------------------
+
