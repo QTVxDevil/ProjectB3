@@ -102,8 +102,12 @@
                         <td>
                             <form method="POST">
                                 <input type="hidden" name="row_id" value="{{ row[0] }}">
-                                <button type="submit" name="action" value="view" class="att-view-button">View</button>
-                                <button type="submit" name="action" value="delete" class="att-delete-button">Delete</button>
+                                <button type="submit" name="action" value="view" class="view-button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button type="submit" name="action" value="delete" class="delete-button" onclick="return comfirmDelete('{{ row[0] }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </form>
                         </td>
                     </tr>   
@@ -120,6 +124,10 @@
             } else {
                 form.style.display = "none";
             }
+        }
+
+        function confirmDelete(deletedID) {
+            return confirm("Confirm for deletion of attendance check " + deletedID + "?")
         }
     </script>
     

@@ -428,7 +428,7 @@ th {
 }
 
 .view-button {
-    background-color: rgb(30, 215, 73);
+    background: none;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -436,12 +436,20 @@ th {
 }
 
 .delete-button {
-    background-color: red;
+    background: none;
     color: white;
     border: none;
     padding: 5px 10px;
     cursor: pointer;
 }
+
+.view-button i {
+    color: #0de714; 
+}
+.delete-button i {
+    color: #f44336; 
+}
+
 
 .att-infor {
     width: 95vw;
@@ -569,21 +577,6 @@ th {
     width: 15vw;
 }
 
-.att-view-button {
-    background-color: rgb(30, 215, 73);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.att-delete-button {
-    background-color: red;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
 
 .face{
     height: 50vh;
