@@ -105,7 +105,7 @@
                                 <button type="submit" name="action" value="view" class="view-button">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button type="submit" name="action" value="delete" class="delete-button" onclick="return comfirmDelete('{{ row[0] }}')">
+                                <button type="submit" name="action" value="delete" class="delete-button" onclick="return confirmDelete('{{ row[1] }}', '{{ row[2] }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -126,8 +126,8 @@
             }
         }
 
-        function confirmDelete(deletedID) {
-            return confirm("Confirm for deletion of attendance check " + deletedID + "?")
+        function confirmDelete(deletedDate, deletedTime) {
+            return confirm("Confirm for deletion of attendance check on " + deletedDate + " at " + deletedTime + "?")
         }
     </script>
     

@@ -231,7 +231,6 @@ def attendance():
         session['classroom_id'] = row_id
         
         if action =='view':
-            
             return redirect(url_for('attendance_information'))
         
     cursor = dtb.cursor()
@@ -244,16 +243,44 @@ def attendance_information():
     classroom_id = session.get('classroom_id')
     
     if request.method == 'POST':
+        if 'action' in request.form:
+            action = request.form['action']
+            row_id = request.form['row_id']
+        
+            if action == 'view':
+                session['checked_id'] = row_id
+                return redirect(url_for('checking'))
+            if action == 'delete':
+                cursor = dtb.cursor(dictionary=True)
+                cursor.execute("DELETE FROM attendance_checked WHERE id = %s", (row_id,))
+                dtb.commit()
+    
+                cursor.execute("SET @row_number = 0;")
+                cursor.execute("""
+                    UPDATE attendance_checked SET id = (@row_number:=@row_number + 1)
+                    ORDER BY id;
+                """)
+                dtb.commit()
+                
+                return redirect(url_for('attendance_information'))
+        
         date = request.form['date']
         time = request.form['time']
         place = request.form['place']
         
-        try: 
+        try:            
             cursor = dtb.cursor()
             cursor.execute("INSERT INTO attendance_checked (date, time, place, classroom_id) VALUES (%s, %s, %s, %s)",
-                           (date, time, place, classroom_id,))
+                        (date, time, place, classroom_id,))
             dtb.commit()
             flash("Attendance record successfully created!")
+            
+            cursor.execute("SET @row_number = 0;")
+            cursor.execute("""
+                UPDATE attendance_checked SET id = (@row_number:=@row_number + 1)
+                ORDER BY id;
+            """)
+            dtb.commit()
         except Exception as e:
             flash(f"Error: {e}")
         return redirect(url_for('attendance_information'))
@@ -266,6 +293,10 @@ def attendance_information():
     cursor.execute("SELECT id, date, time, place FROM attendance_checked WHERE classroom_id = %s", (classroom_id,))
     checked = cursor.fetchall()    
     return render_template("/Lecturer/attendance_information.html", currentDate=currentDate, currentTime=currentTime, checked=checked)
+
+@app.route('/checking', methods=['GET', 'POST'])
+def checking():
+    return render_template('/Lecturer/attendance_checking.html')
 
 
 @app.route('/std_information', methods=['GET', 'POST'])
