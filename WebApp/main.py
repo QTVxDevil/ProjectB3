@@ -74,7 +74,7 @@ def lecturers():
 
 @app.route('/Students')
 def students():
-    return redirect(url_for('std_information'))
+    return redirect(url_for('std_classroom'))
 
 @app.route('/information', methods=['GET', 'POST'])
 def information():
@@ -298,16 +298,19 @@ def attendance_information():
 def checking():
     return render_template('/Lecturer/attendance_checking.html')
 
-
-@app.route('/std_information', methods=['GET', 'POST'])
+@app.route('/information', methods=['GET', 'POST'])
 def std_information():
+    return render_template('/Student/information.html')
+
+@app.route('/std_classroom', methods=['GET', 'POST'])
+def std_classroom():
     std_id = session.get('student_id')
     
     if request.method == "POST":
         row_id = request.form['row_id']
         action = request.form['action']
         if action == "view":
-            return redirect(url_for('std_information'))
+            return redirect(url_for('std_classroom'))
     cursor = dtb.cursor()
     query = """
     SELECT c.id, c.nameofclass, c.major, c.begindate, c.enddate, c.nameoflecturer
@@ -320,7 +323,7 @@ def std_information():
     
     student_data = cursor.fetchall()    
     
-    return render_template('/Student/information.html', student_data=student_data)
+    return render_template('/Student/classroom.html', student_data=student_data)
 
 @app.route('/facescan', methods=['GET', 'POST'])
 def facescan():
