@@ -75,12 +75,6 @@ CREATE TABLE IF NOT EXISTS `student_classroom` (
     FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 );
 
--- ALTER TABLE `student_classroom`
--- ADD CONSTRAINT `fk_classroom`
--- FOREIGN KEY (`classroom_id`)
--- REFERENCES `classroom`(`id`)	
--- ON DELETE CASCADE;
-
 -- ---------------------------- attendance_checked ------------------------------
 
 CREATE TABLE IF NOT EXISTS `attendance_checked` (

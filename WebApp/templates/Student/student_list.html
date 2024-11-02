@@ -46,40 +46,31 @@
         </div>
     </section>
 
-    <section class="table-classroom">
-        <table>
-            <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Subject</th>
-                    <th>Major</th>
-                    <th>Start date</th>
-                    <th>End date</th>
-                    <th>Lecturer</th>
-                    <th>Action </th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in student_data %}
-                <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ row[1] }}</td>
-                    <td>{{ row[2] }}</td>
-                    <td>{{ row[3] }}</td>
-                    <td>{{ row[4] }}</td>
-                    <td>{{ row[5] }}</td>
-                    <td>
-                        <form method="POST">
-                            <input type="hidden" name="row_id" value="{{ row[0] }}">
-                            <button type="submit" name="action" value="view" class="view-button">
-                                <i class="fas fa-eye"></i>
-                            </button>                            
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <section class="std-information">
+        <div class="std-add-form">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Student name</th>
+                        <th>Student id</th>
+                        <th>Major</th>
+                        <th>Face id</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in students %}
+                    <tr>
+                        <td>{{ loop.index }}</td> <!-- Display row index (STT) -->
+                        <td>{{ row[1] }}</td> <!-- Student Name -->
+                        <td>{{ row[0] }}</td> <!-- Student ID -->
+                        <td>{{ row[2] }}</td> <!-- Major -->
+                        <td>{{ row[3] }}</td> <!-- Face ID -->
+                    </tr>   
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </section>
 </body>
 </html>

@@ -405,14 +405,14 @@ select[id="major"]:focus{
     background-color: #1943fe;
 }
 
-.table-information{
+.table-classroom{
     width: 95vw;
     height: 65vh;
     margin: 0 auto;
     margin-top: 7vh;
 }
 
-.table-information table{
+.table-classroom table{
     width: 100%;
     text-align: center;
     border-collapse: collapse;

@@ -298,7 +298,7 @@ def attendance_information():
 def checking():
     return render_template('/Lecturer/attendance_checking.html')
 
-@app.route('/information', methods=['GET', 'POST'])
+@app.route('/std_information', methods=['GET', 'POST'])
 def std_information():
     return render_template('/Student/information.html')
 
@@ -310,7 +310,8 @@ def std_classroom():
         row_id = request.form['row_id']
         action = request.form['action']
         if action == "view":
-            return redirect(url_for('std_classroom'))
+            session['row_id'] = row_id
+            return redirect(url_for('std_list'))
     cursor = dtb.cursor()
     query = """
     SELECT c.id, c.nameofclass, c.major, c.begindate, c.enddate, c.nameoflecturer
@@ -324,6 +325,21 @@ def std_classroom():
     student_data = cursor.fetchall()    
     
     return render_template('/Student/classroom.html', student_data=student_data)
+
+@app.route('/std_list', methods=['GET', 'POST'])
+def std_list():
+    row_id = session.get('row_id')
+    
+    cursor = dtb.cursor()
+    cursor.execute("""
+                    SELECT s.student_id, s.student_name, s.major, s.face_id
+                    FROM student_information s
+                    JOIN student_classroom sc ON s.student_id = sc.student_id
+                    WHERE sc.classroom_id = %s
+                """, (row_id,))
+    students = cursor.fetchall()
+
+    return render_template('/Student/student_list.html', students=students)
 
 @app.route('/facescan', methods=['GET', 'POST'])
 def facescan():
