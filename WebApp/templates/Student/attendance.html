@@ -88,32 +88,32 @@
     </section>
     <script>
         function toggleDropdown(event) {
-          event.stopPropagation(); // Prevents the click event from propagating to the window
-          var dropdown = document.getElementById("dropdown");
-          
-          // Close dropdown if it's already open
-          if (dropdown.style.display === "block") {
-            dropdown.style.display = "none";
-          } else {
-            // Close any other open dropdowns
-            closeAllDropdowns();
-            dropdown.style.display = "block";
-          }
+            event.stopPropagation(); // Prevents the click event from propagating to the window
+            const dropdown = event.currentTarget.closest("form").querySelector(".dropdown-content");
+            
+            // Close dropdown if it's already open
+            if (dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            } else {
+                // Close any other open dropdowns
+                closeAllDropdowns();
+                dropdown.style.display = "block";
+            }
         }
-      
+        
         // Function to close the dropdown when clicking outside
         window.onclick = function(event) {
-          if (!event.target.closest('.att-view-button')) {
-            closeAllDropdowns();
-          }
-        }
-      
+            if (!event.target.closest('.att-view-button')) {
+                closeAllDropdowns();
+            }
+        };
+        
         function closeAllDropdowns() {
-          var dropdowns = document.getElementsByClassName("dropdown-content");
-          for (var i = 0; i < dropdowns.length; i++) {
-            dropdowns[i].style.display = "none";
-          }
-        }
+            const dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].style.display = "none";
+            }
+        }        
       </script>
 </body>
 </html>

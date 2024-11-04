@@ -348,11 +348,11 @@ def std_attendance():
     if request.method == "POST":
         row_id = request.form['row_id']
         action = request.form['action']
-        if action == "view":
-            session['row_id'] = row_id
+        session['classroom_id'] = row_id
+    
+        if action == "view": 
             return redirect(url_for('std_attendance_view'))
         if action == 'checking':
-            session['row_id'] = row_id
             return redirect(url_for('std_attendance_checking'))
     cursor = dtb.cursor()
     query = """
@@ -373,7 +373,12 @@ def std_attendance_view():
 
 @app.route('/checking_attendance', methods=['GET', 'POST'])
 def std_attendance_checking():
-    return render_template('/Student/attendance_checking.html')
+    classroom_id = session.get('classroom_id')
+    
+    cursor = dtb.cursor()
+    cursor.execute("SELECT * FROM attendance_checked WHERE classroom_id = %s", (classroom_id,))
+    attendances = cursor.fetchall()
+    return render_template('/Student/attendance_checking.html', attendances=attendances)
 
 @app.route('/facescan', methods=['GET', 'POST'])
 def facescan():
