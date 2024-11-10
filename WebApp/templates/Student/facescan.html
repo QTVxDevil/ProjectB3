@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Scan</title>
+    <title>information</title>
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -33,7 +33,11 @@
         
         <div class="navbar">
             <div class="nav-item">
-                <a href="{{ url_for('std_information') }}">INFORMATION</a>
+                <a href="{{ url_for('std_information') }}">PERSONAL</a>
+            </div> 
+
+            <div class="nav-item">
+                <a href="{{ url_for('std_classroom') }}">CLASSROOM</a>
             </div>
 
             <div class="nav-item">
@@ -41,11 +45,35 @@
             </div>
         </div>
     </section>
+    
+    <section class="face-scan">
+        <div class="infor-container">
+            <form method="POST">
+                <h1>Informations</h1>
 
-    <section class="face">
-        <div class="face-scan">
-            <img src="{{ url_for('video_feed') }}" alt="Video Stream">
+                <div class="input-box">
+                    <label for="studentname">Student name:</label>
+                    <input type="text" id="studentname" name="studentname" readonly>
+                </div>
+
+                <div class="input-box">
+                    <label for="studentid">Student ID:</label>
+                    <input type="text" id="studentid" name="studentid" readonly>
+                </div>
+
+                <div class="input-box">
+                    <label for="time">Time checking:</label>
+                    <input type="text" id="time" name="time" readonly>
+                </div>
+
+                <button type="submit" id="submitBtn" style="display: none;">Submit</button>
+            </form>
+        </div>
+
+        <div class="face-container">
+            <img src="{{ url_for('static', filename='./images/face-scanner.png')}}" width="70" height="70" alt="icon">
+            <button type="button" onclick="startWebcam()">Checking</button>
         </div>
     </section>
-</body>
+    
 </html>

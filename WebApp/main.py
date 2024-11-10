@@ -30,17 +30,6 @@ def delete(row_id):
     
     dtb.commit()
     
-camera = cv2.VideoCapture(0)
-def generateFrames():
-    while True:
-        success, frame = camera.read()
-        if not success:
-            break
-        else:
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -375,24 +364,23 @@ def std_attendance_view():
 def std_attendance_checking():
     classroom_id = session.get('classroom_id')
     
+    if request.method == "POST":
+        action = request.form['action']
+        row_id = request.form['row_id']
+        
+        if action == 'view':
+            session['row_id'] = row_id
+            print(row_id)
+            return redirect(url_for('face_scan'))
+        
     cursor = dtb.cursor()
     cursor.execute("SELECT * FROM attendance_checked WHERE classroom_id = %s", (classroom_id,))
     attendances = cursor.fetchall()
     return render_template('/Student/attendance_checking.html', attendances=attendances)
 
-@app.route('/facescan', methods=['GET', 'POST'])
-def facescan():
+@app.route('/face_scan', methods=['GET', 'POST'])
+def face_scan():
     return render_template('/Student/facescan.html')
-
-@app.route('/video_feed')
-def video_feed():
-    # Design a frame to display camera into website
-    # Require:
-    # + A frame in center of this page
-    # + add drop window when user completed scanface
-    # + make a loop to checking face od user when recognized
-    return Response(generateFrames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -612,18 +612,92 @@ th {
     background-color: #ddd;
 }
 
-.face{
-    height: 50vh;
-    width: 50vw;
+.face-scan {
+    width: 65vw;
+    height: 65vh;
     margin: 0 auto;
-    margin-top: 5vh;
+    margin-top: 6vh;
+    border-radius: 2vh;
+    box-shadow: 0px 4px 8px 0px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: row;
 }
 
-.face-scan{
-    background-color:rgb(30, 215, 73);
+.infor-container {
     height: 100%;
-    width: 100%;
+    width: 50%;
 }
 
+.face-container {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
+.infor-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
+.infor-container h1 {
+    text-align: center;
+    padding-top: 2vh;
+    font-size: 4vh;
+    margin-bottom: 2vh;
+}
+
+.infor-container .input-box {
+    height: 15vh;
+    width: 100%;
+    margin: 0 2.5vw;
+}
+
+.input-box input {
+    height: 8.5vh;
+    width: 85%;
+    border-radius: 3vh;
+    margin-top: 1vh;
+    margin-left: 2vw;
+}
+
+.input-box label {
+    font-size: 2.3vh;
+    font-weight: bold;
+    margin-left: 2.3vw;
+}
+
+.infor-container button {
+    width: 8.5vw;
+    padding: 1.5vh;
+    background-color: #f44336;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 2vh;
+    cursor: pointer;
+    font-size: 2.5vh;
+}
+
+.infor-container button:hover {
+    background-color: red;
+}
+
+.face-container button {
+    width: 7vw;
+    padding: 1vh;
+    background-color: var(--main-color);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 2vh;
+    cursor: pointer;
+    font-size: 2.5vh;
+}
+
+.face-container button:hover {
+    background-color: #1943fe;
+}
