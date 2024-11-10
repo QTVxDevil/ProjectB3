@@ -382,6 +382,7 @@ def std_attendance_checking():
 def face_scan():
     return render_template('/Student/facescan.html')
 
+
 if __name__ == '__main__':
     app.run(debug=True)
     
