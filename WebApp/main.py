@@ -30,7 +30,23 @@ def delete(row_id):
     
     dtb.commit()
     
-
+def generate_frames():
+    camera = cv2.VideoCapture(0)
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            frame = cv2.flip(frame, 1)
+            
+            # Encode the flipped frame in JPEG format
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            
+            # Use generator to yield the frame as an MJPEG stream
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    
 
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
@@ -382,6 +398,9 @@ def std_attendance_checking():
 def face_scan():
     return render_template('/Student/facescan.html')
 
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run(debug=True)

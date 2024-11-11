@@ -71,10 +71,23 @@
         </div>
 
         <div class="face-container">
-            <img src="{{ url_for('static', filename='./images/face-scanner.png')}}" width="70" height="70" alt="icon">
-            <button type="button" onclick="startWebcam()">Checking</button>
-            
+            <img id="static-image" src="{{ url_for('static', filename='./images/face-scanner.png')}}" width="70" height="70" alt="icon">
+            <button id="check-button" type="button" onclick="startWebcam()">Checking</button>
+            <img class="webcam" id="video" width="320" height="320" alt="Video Stream">
         </div>
     </section>
+
+    <script>
+        function startWebcam() {
+            // Set the src of the video element to the video feed URL
+            document.getElementById('video').src = "{{ url_for('video_feed') }}";
+            // Show the video stream
+            document.getElementById('video').style.display = 'block';
+            
+            // Hide the static image and checking button
+            document.getElementById('static-image').style.display = 'none';
+            document.getElementById('check-button').style.display = 'none';
+        }
+    </script>
     
 </html>

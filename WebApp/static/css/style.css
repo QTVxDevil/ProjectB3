@@ -701,3 +701,11 @@ th {
 .face-container button:hover {
     background-color: #1943fe;
 }
+
+#video {
+    display: none;
+}
+
+.webcam {
+    border-radius: 2vh;
+}
