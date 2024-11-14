@@ -103,7 +103,6 @@ def information():
     
     return render_template("/Lecturer/Information.html", classroom_data=classroom_data)
 
-
 @app.route('/classroom', methods=["GET", "POST"])
 def classroom():
     if request.method == 'POST':
