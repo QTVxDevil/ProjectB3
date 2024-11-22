@@ -1,8 +1,15 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, session, Response
 import mysql.connector
 import pandas as pd
+import numpy as np
 import cv2
+import tensorflow as tf
+from io import BytesIO
+from PIL import Image
 from datetime import datetime
+from waitress import serve
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 app = Flask(__name__)
 app.secret_key = "any-string-you-want-just-keep-it-secret"
@@ -14,7 +21,6 @@ dtb = mysql.connector.connect(
     password="super123",      
     database="gp2425" 
 )
-
 
 def delete(row_id):
     cursor = dtb.cursor(dictionary=True)
@@ -30,35 +36,76 @@ def delete(row_id):
     
     dtb.commit()
     
+
+def fetch_reference_image():
+    cursor = dtb.cursor()
+    query = "SELECT image_data FROM image_storage WHERE id=1"  #
+    cursor.execute(query)
+    result = cursor.fetchone()
+    if result:
+        blob_data = result[0]
+        img = Image.open(BytesIO(blob_data))  # Convert BLOB to PIL Image
+        img = img.convert("L")  # Convert to grayscale
+        img = np.array(img)  # Convert to NumPy array
+        return preprocess_image(img)
+    else:
+        print("No image found in database")
+        return None   
+
+def preprocess_image(img, target_size=(128, 128)):
+    img = cv2.resize(img, target_size)  # Resize to target size
+    img = img.astype('float32') / 255.0  # Normalize pixel values
+    img = np.expand_dims(img, axis=-1)  # Add channel dimension
+    img = np.expand_dims(img, axis=0)   # Add batch dimension
+    return img
+
+reference_image = fetch_reference_image()
+
+class L1Dist(tf.keras.layers.Layer):
+    def __init__(self, **kwargs):
+        super().__init__()
+
+    def call(self, inputs):
+        input_embedding, validation_embedding = inputs
+        return tf.math.abs(input_embedding - validation_embedding)
+
+tf.keras.utils.get_custom_objects()["L1Dist"] = L1Dist
+
 def generate_frames():
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    siamese = tf.keras.models.load_model("Model/siamesemodel.h5")
     camera = cv2.VideoCapture(0)
-    while True:
-        success, frame = camera.read()
-        if not success:
-            break
-        else:
-            frame = cv2.flip(frame, 1)
+    
+    try:
+        while True:
+            success, frame = camera.read()
+            if not success:
+                break
+            else:
+                frame = cv2.flip(frame, 1)
             
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-            # Detect faces in the frame
-            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
-
-            # Draw rectangles and labels around each detected face
-            for (x, y, w, h) in faces:
-                # Draw a rectangle around the face
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)  # Blue rectangle with thickness of 2
+            face = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  
+            processed_face = preprocess_image(face)  
+          
+            if reference_image is None or processed_face is None:
+                label = "Error: Invalid Input"
+                color = (0, 0, 255)  # Red for error
                 
-                # Add a label "Person" above the rectangle
-                cv2.putText(frame, 'Person', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-            # Encode the flipped frame in JPEG format
+            else:
+                similarity = siamese.predict([reference_image, processed_face], batch_size=1)
+                label = "Matched" if similarity < 0.5 else "Not Matched"
+                color = (0, 255, 0) if label == "Matched" else (0, 0, 255)
+
+            cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
-            
-            # Use generator to yield the frame as an MJPEG stream
+
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    finally:
+        camera.release()
+
+
     
 
 @app.route('/', methods=['GET', 'POST'])
@@ -414,6 +461,10 @@ def face_scan():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+mode = 'dev'
+
 if __name__ == '__main__':
-    app.run(debug=True)
-    
+    if mode == 'dev':
+        app.run(debug=True)
+    else:
+        serve(app, host='0.0.0.0', port=5000, threads=2, url_prefix="/attendance-management")
