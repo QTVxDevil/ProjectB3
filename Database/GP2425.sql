@@ -101,5 +101,13 @@ FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 ON DELETE CASCADE;
 
 
--- ---------------------------- student_attendance ---------------------------------
+-- ---------------------------- image storage ---------------------------------
 
+CREATE TABLE IF NOT EXISTS `image_storage` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY,
+    `student_id` VARCHAR(50) NOT NULL,
+    `image_name` VARCHAR(255) NOT NULL,
+    `image_data` LONGBLOB NOT NULL,
+    `upload_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`student_id`) REFERENCES `student_information`(`student_id`)
+);
