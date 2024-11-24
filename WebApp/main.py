@@ -37,10 +37,9 @@ def delete(row_id):
     dtb.commit()
     
 
-def fetch_reference_image():
-    cursor = dtb.cursor()
-    query = "SELECT image_data FROM image_storage WHERE id=1"  #
-    cursor.execute(query)
+def fetch_reference_image(student_id):
+    cursor = dtb.cursor()  
+    cursor.execute("SELECT image_data FROM image_storage WHERE student_id = %s", (student_id,))
     result = cursor.fetchone()
     if result:
         blob_data = result[0]
@@ -52,14 +51,13 @@ def fetch_reference_image():
         print("No image found in database")
         return None   
 
-def preprocess_image(img, target_size=(128, 128)):
-    img = cv2.resize(img, target_size)  # Resize to target size
+def preprocess_image(img, target_size=(105, 105)):
+    if len(img.shape) == 2:  # If grayscale
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)  # Convert to 3 channels (RGB)
+    img = cv2.resize(img, target_size)  # Resize to match model's input size
     img = img.astype('float32') / 255.0  # Normalize pixel values
-    img = np.expand_dims(img, axis=-1)  # Add channel dimension
-    img = np.expand_dims(img, axis=0)   # Add batch dimension
+    img = np.expand_dims(img, axis=0)  # Add batch dimension
     return img
-
-reference_image = fetch_reference_image()
 
 class L1Dist(tf.keras.layers.Layer):
     def __init__(self, **kwargs):
@@ -71,10 +69,16 @@ class L1Dist(tf.keras.layers.Layer):
 
 tf.keras.utils.get_custom_objects()["L1Dist"] = L1Dist
 
-def generate_frames():
+def generate_frames(student_id):
+    # Load the Siamese model
     siamese = tf.keras.models.load_model("Model/siamesemodel.h5")
-    camera = cv2.VideoCapture(0)
     
+    # Fetch the reference image for the given student ID
+    reference_image = fetch_reference_image(student_id)
+    if reference_image is None:
+        raise ValueError("No reference image found for the student.")
+    
+    camera = cv2.VideoCapture(0)
     try:
         while True:
             success, frame = camera.read()
@@ -82,18 +86,18 @@ def generate_frames():
                 break
             else:
                 frame = cv2.flip(frame, 1)
-            
-            face = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  
+
+            face = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Ensure 3-channel input for the model  
             processed_face = preprocess_image(face)  
-          
-            if reference_image is None or processed_face is None:
+
+            if processed_face is None:
                 label = "Error: Invalid Input"
                 color = (0, 0, 255)  # Red for error
-                
             else:
-                similarity = siamese.predict([reference_image, processed_face], batch_size=1)
+                similarity = siamese.predict([reference_image, processed_face])
                 label = "Matched" if similarity < 0.5 else "Not Matched"
                 color = (0, 255, 0) if label == "Matched" else (0, 0, 255)
+                print(f'prediction: {similarity}\nlabel: {label}')
 
             cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
@@ -455,11 +459,19 @@ def std_attendance_checking():
 
 @app.route('/face_scan', methods=['GET', 'POST'])
 def face_scan():
+    student_id = session.get('student_id')
+    if not student_id:
+        flash("Please log in to access this feature.")
+        return redirect(url_for('homepage'))
     return render_template('/Student/facescan.html')
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    student_id = session.get('student_id')
+    if not student_id:
+        flash("Please log in to access this feature.")
+        return redirect(url_for('homepage'))
+    return Response(generate_frames(student_id), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 mode = 'dev'
 
