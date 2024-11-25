@@ -9,6 +9,8 @@ from PIL import Image
 from datetime import datetime
 from waitress import serve
 import os
+import json
+
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 app = Flask(__name__)
@@ -95,10 +97,27 @@ def generate_frames(student_id):
                 color = (0, 0, 255)  # Red for error
             else:
                 similarity = siamese.predict([reference_image, processed_face])
-                label = "Matched" if similarity < 0.5 else "Not Matched"
+                label = "Matched" if similarity > 0.5 else "Not Matched"
                 color = (0, 255, 0) if label == "Matched" else (0, 0, 255)
                 print(f'prediction: {similarity}\nlabel: {label}')
-
+                
+                if label == "Matched":
+                    cursor = dtb.cursor(buffered=True)
+                    cursor.execute("""SELECT student_name FROM student_information
+                                    WHERE student_id = %s""", (student_id,))
+                    result = cursor.fetchone()
+                    
+                    if result:
+                        student_name = result[0]  # Retrieve the name from the result tuple
+                        print(f"Student Name: {student_name}")
+                        label = f"Matched: {student_name}"
+                    else:
+                        print("No student found with the given ID.")
+                        label = "Matched: No Name Found"
+                    
+                    # Fetch all remaining results (if any) to prevent "Unread result found" error
+                    cursor.fetchall()
+            
             cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
             ret, buffer = cv2.imencode('.jpg', frame)
@@ -108,7 +127,6 @@ def generate_frames(student_id):
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     finally:
         camera.release()
-
 
     
 
