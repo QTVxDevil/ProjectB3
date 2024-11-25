@@ -40,18 +40,32 @@ def delete(row_id):
     
 
 def fetch_reference_image(student_id):
-    cursor = dtb.cursor()  
-    cursor.execute("SELECT image_data FROM image_storage WHERE student_id = %s", (student_id,))
-    result = cursor.fetchone()
-    if result:
-        blob_data = result[0]
-        img = Image.open(BytesIO(blob_data))  # Convert BLOB to PIL Image
-        img = img.convert("L")  # Convert to grayscale
-        img = np.array(img)  # Convert to NumPy array
-        return preprocess_image(img)
-    else:
-        print("No image found in database")
-        return None   
+    cursor = dtb.cursor()
+    try:
+        cursor.execute("SELECT image_data FROM image_storage WHERE student_id = %s", (student_id,))
+        result = cursor.fetchone()  # Fetch the result explicitly
+        if result:
+            blob_data = result[0]
+            img = Image.open(BytesIO(blob_data))  # Convert BLOB to PIL Image
+            img = img.convert("L")  # Convert to grayscale
+            img = np.array(img)  # Convert to NumPy array
+            return preprocess_image(img)
+        else:
+            print("No image found in database")
+            return None
+    finally:
+        cursor.fetchall()  # Ensure any remaining results are fetched (clears buffer)
+        cursor.close()   
+
+def fetch_reference_student(student_id):
+    cursor = dtb.cursor()
+    try:
+        cursor.execute("SELECT student_name FROM student_information WHERE student_id = %s", (student_id,))
+        student_info = cursor.fetchone()  # Explicitly fetch results
+        return student_info
+    finally:
+        cursor.fetchall()  # Clear remaining results
+        cursor.close()
 
 def preprocess_image(img, target_size=(105, 105)):
     if len(img.shape) == 2:  # If grayscale
@@ -79,7 +93,7 @@ def generate_frames(student_id):
     reference_image = fetch_reference_image(student_id)
     if reference_image is None:
         raise ValueError("No reference image found for the student.")
-    
+        
     camera = cv2.VideoCapture(0)
     try:
         while True:
@@ -91,7 +105,8 @@ def generate_frames(student_id):
 
             face = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Ensure 3-channel input for the model  
             processed_face = preprocess_image(face)  
-
+            student_fetch = fetch_reference_student(student_id)
+            
             if processed_face is None:
                 label = "Error: Invalid Input"
                 color = (0, 0, 255)  # Red for error
@@ -100,26 +115,13 @@ def generate_frames(student_id):
                 label = "Matched" if similarity > 0.5 else "Not Matched"
                 color = (0, 255, 0) if label == "Matched" else (0, 0, 255)
                 print(f'prediction: {similarity}\nlabel: {label}')
-                
+
                 if label == "Matched":
-                    cursor = dtb.cursor(buffered=True)
-                    cursor.execute("""SELECT student_name FROM student_information
-                                    WHERE student_id = %s""", (student_id,))
-                    result = cursor.fetchone()
-                    
-                    if result:
-                        student_name = result[0]  # Retrieve the name from the result tuple
-                        print(f"Student Name: {student_name}")
-                        label = f"Matched: {student_name}"
-                    else:
-                        print("No student found with the given ID.")
-                        label = "Matched: No Name Found"
-                    
-                    # Fetch all remaining results (if any) to prevent "Unread result found" error
-                    cursor.fetchall()
+                    print(f"{student_fetch}\n{student_id}")
+                    break
             
             cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
-
+            
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
 
@@ -489,7 +491,14 @@ def video_feed():
     if not student_id:
         flash("Please log in to access this feature.")
         return redirect(url_for('homepage'))
-    return Response(generate_frames(student_id), mimetype='multipart/x-mixed-replace; boundary=frame')
+    try:
+        # Stream video feed
+        return Response(generate_frames(student_id), mimetype='multipart/x-mixed-replace; boundary=frame')
+    except Exception as e:
+        # Log the error and show a user-friendly message
+        print(f"Error in video feed: {e}")
+        flash("An error occurred while accessing the video feed. Please try again later.", "danger")
+        return redirect(url_for('face_scan'))
 
 mode = 'dev'
 
