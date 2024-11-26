@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session, Response
+from flask import Flask, render_template, redirect, url_for, request, flash, session, Response, jsonify, g
 import mysql.connector
 import pandas as pd
 import numpy as np
@@ -9,7 +9,6 @@ from PIL import Image
 from datetime import datetime
 from waitress import serve
 import os
-import json
 
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
@@ -43,28 +42,28 @@ def fetch_reference_image(student_id):
     cursor = dtb.cursor()
     try:
         cursor.execute("SELECT image_data FROM image_storage WHERE student_id = %s", (student_id,))
-        result = cursor.fetchone()  # Fetch the result explicitly
+        result = cursor.fetchone()  
         if result:
             blob_data = result[0]
-            img = Image.open(BytesIO(blob_data))  # Convert BLOB to PIL Image
-            img = img.convert("L")  # Convert to grayscale
-            img = np.array(img)  # Convert to NumPy array
+            img = Image.open(BytesIO(blob_data))
+            img = img.convert("L")
+            img = np.array(img)
             return preprocess_image(img)
         else:
             print("No image found in database")
             return None
     finally:
-        cursor.fetchall()  # Ensure any remaining results are fetched (clears buffer)
+        cursor.fetchall()
         cursor.close()   
 
 def fetch_reference_student(student_id):
     cursor = dtb.cursor()
     try:
         cursor.execute("SELECT student_name FROM student_information WHERE student_id = %s", (student_id,))
-        student_info = cursor.fetchone()  # Explicitly fetch results
+        student_info = cursor.fetchone()
         return student_info
     finally:
-        cursor.fetchall()  # Clear remaining results
+        cursor.fetchall()
         cursor.close()
 
 def preprocess_image(img, target_size=(105, 105)):
@@ -85,11 +84,14 @@ class L1Dist(tf.keras.layers.Layer):
 
 tf.keras.utils.get_custom_objects()["L1Dist"] = L1Dist
 
+match_data = {}  
+
 def generate_frames(student_id):
-    # Load the Siamese model
+    global match_data  # Access the global dictionary
+    match_data[student_id] = {"student_info": None, "match_time": None}
+        
     siamese = tf.keras.models.load_model("Model/siamesemodel.h5")
     
-    # Fetch the reference image for the given student ID
     reference_image = fetch_reference_image(student_id)
     if reference_image is None:
         raise ValueError("No reference image found for the student.")
@@ -106,10 +108,9 @@ def generate_frames(student_id):
             face = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Ensure 3-channel input for the model  
             processed_face = preprocess_image(face)  
             student_fetch = fetch_reference_student(student_id)
-            
             if processed_face is None:
                 label = "Error: Invalid Input"
-                color = (0, 0, 255)  # Red for error
+                color = (0, 0, 255)
             else:
                 similarity = siamese.predict([reference_image, processed_face])
                 label = "Matched" if similarity > 0.5 else "Not Matched"
@@ -117,7 +118,11 @@ def generate_frames(student_id):
                 print(f'prediction: {similarity}\nlabel: {label}')
 
                 if label == "Matched":
-                    print(f"{student_fetch}\n{student_id}")
+                    match_data[student_id] = {
+                        "student_info": student_fetch,
+                        "match_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    print(f"Matched Student: {student_fetch}\nTime: {match_data[student_id]['match_time']}")
                     break
             
             cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
@@ -492,13 +497,21 @@ def video_feed():
         flash("Please log in to access this feature.")
         return redirect(url_for('homepage'))
     try:
-        # Stream video feed
         return Response(generate_frames(student_id), mimetype='multipart/x-mixed-replace; boundary=frame')
     except Exception as e:
-        # Log the error and show a user-friendly message
         print(f"Error in video feed: {e}")
         flash("An error occurred while accessing the video feed. Please try again later.", "danger")
         return redirect(url_for('face_scan'))
+    
+@app.route('/matched_info', methods=["GET", "POST"])
+def matched_info():
+    student_id = session.get('student_id')
+    if not student_id or student_id not in match_data:
+        flash("No match data available.", "warning")
+        return redirect(url_for('face_scan'))
+    match_info = match_data[student_id]
+    return f"Matched Student: {match_info['student_info']}<br>Match Time: {match_info['match_time']}" 
+
 
 mode = 'dev'
 
