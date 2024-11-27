@@ -12,6 +12,7 @@
 :root {
     --text-color: white;
     --main-color: #0C1E76;
+    --red-color: red;
 }
 
 html{
@@ -708,4 +709,347 @@ th {
 
 .webcam {
     border-radius: 0;
+}
+
+.std-info {
+    height: 70vh;
+    width: 92vw;
+    margin: 0 auto;
+    margin-top: 5vh;
+}
+
+.std-info-header {
+    background-color: var(--red-color);
+    width: 100%;
+    height: 7vh;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+}
+
+.std-info-header h1{
+    color: var(--text-color); 
+    font-size: 3.5vh;
+    padding-left: 3vw;
+}
+
+.std-content {
+    width: 100%;
+    height: 63vh;
+    display: flex;
+    flex-direction: row;
+    margin-top: 2vh;
+}
+
+.std-photo{
+    height: 100%;
+    width: 13vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-photo img {
+    width: 7vw;
+}
+
+.std-detail {
+    height: 100%;
+    width: 79vw;
+}
+
+.std-row {
+    width: 100%;
+    height: 7.5vh;
+    margin-bottom: 1vh;
+    display: flex;
+    flex-direction: row;
+}
+
+.std-name {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-name label{
+    font-size: 3vh;
+    width: 40%;
+    padding-left: 1vw;
+}
+
+.std-name input{
+    height: 100%;
+    width: 50%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-id {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-id label{
+    font-size: 3vh;
+    width: 30%;
+    padding-left: 1vw;
+}
+
+.std-id input{
+    height: 100%;
+    width: 70%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-dob {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-dob label{
+    font-size: 3vh;
+    width: 40%;
+    padding-left: 1vw;
+}
+
+.std-dob input{
+    height: 100%;
+    width: 50%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-pob {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-pob label{
+    font-size: 3vh;
+    width: 30%;
+    padding-left: 1vw;
+}
+
+.std-pob input{
+    height: 100%;
+    width: 70%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-family {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    
+}
+
+.std-family label{
+    font-size: 3vh;
+    width: 24%;
+    padding-left: 2vw;
+}
+
+.std-family input{
+    height: 100%;
+    width: 50%;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-citizen {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    
+}
+
+.std-citizen label{
+    font-size: 3vh;
+    width: 24%;
+    padding-left: 2vw;
+}
+
+.std-citizen input{
+    height: 100%;
+    width: 50%;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-phone {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-phone label{
+    font-size: 3vh;
+    width: 40%;
+    padding-left: 1vw;
+}
+
+.std-phone input{
+    height: 100%;
+    width: 50%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-email {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-email label{
+    font-size: 3vh;
+    width: 30%;
+    padding-left: 1vw;
+}
+
+.std-email input{
+    height: 100%;
+    width: 70%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-major {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-major label{
+    font-size: 3vh;
+    width: 40%;
+    padding-left: 1vw;
+}
+
+.std-major input{
+    height: 100%;
+    width: 50%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-training {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-training label{
+    font-size: 3vh;
+    width: 30%;
+    padding-left: 1vw;
+}
+
+.std-training input{
+    height: 100%;
+    width: 70%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-class {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-class label{
+    font-size: 3vh;
+    width: 40%;
+    padding-left: 1vw;
+}
+
+.std-class input{
+    height: 100%;
+    width: 50%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
+}
+
+.std-course {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.std-course label{
+    font-size: 3vh;
+    width: 30%;
+    padding-left: 1vw;
+}
+
+.std-course input{
+    height: 100%;
+    width: 70%;
+    margin-left: 2vw;
+    padding-right: 2vw;
+    border: none;
+    font-weight: bold;
+    font-size: 2.8vh;
 }

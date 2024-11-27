@@ -46,5 +46,82 @@
         </div>
     </section>
 
+    <section class="std-info">
+        <div class="std-info-header">
+            <h1>Student information</h1>
+        </div>
+
+        <div class="std-content">
+            <div class="std-photo">
+                <img src="{{ url_for('static', filename='./images/avatar.png')}}" alt="avatar">
+            </div>
+
+            <div class="std-detail">
+                <div class="std-row">
+                    <div class="std-name">
+                        <label for="stdname">Full name:</label>
+                        <input type="text" name="stdname" value="TRỊNH VĂN QUYẾT" readonly>
+                    </div>
+                    <div class="std-id">
+                        <label for="stdid">Student Code:</label>
+                        <input type="text" name="stdid" value="22BI13387" readonly>
+                    </div>
+                </div>
+                <div class="std-row">
+                    <div class="std-dob">
+                        <label for="stdname">Birthday:</label>
+                        <input type="text" name="stddob" value="13/02/2004" readonly>
+                    </div>
+                    <div class="std-pob">
+                        <label for="stdid">Birthplace:</label>
+                        <input type="text" name="stdpob" value="Hải Phòng" readonly>
+                    </div>
+                </div>
+                <div class="std-row">
+                    <div class="std-family">
+                        <label for="stdfr">Household Registration:</label>
+                        <input type="text" name="stdfr" value="Hòa Bình - Vinh Quang - Tiên Lãng - Hải Phòng" readonly>
+                    </div>
+                </div>
+                <div class="std-row">
+                    <div class="std-citizen">
+                        <label for="stdci">Citizen identification:</label>
+                        <input type="text" name="stdci" value="031204008704" readonly>
+                    </div>
+                </div>
+                <div class="std-row">
+                    <div class="std-phone">
+                        <label for="stdphone">Telephone:</label>
+                        <input type="text" name="stdphone" value="0865903798" readonly>
+                    </div>
+                    <div class="std-email">
+                        <label for="stdemail">Email:</label>
+                        <input type="text" name="stdemail" value="QuyetTV.22BI13387@usth.edu.vn" readonly>
+                    </div>
+                </div>
+                <div class="std-row">
+                    <div class="std-major">
+                        <label for="stdmajor">Field of study:</label>
+                        <input type="text" name="stdmajor" value="Data Science" readonly>
+                    </div>
+                    <div class="std-training">
+                        <label for="stdtraining">Training system:</label>
+                        <input type="text" name="stdemail" value="University" readonly>
+                    </div>
+                </div>
+                <div class="std-row">
+                    <div class="std-class">
+                        <label for="stdclass">Class:</label>
+                        <input type="text" name="stdclass" value="DS BI13" readonly>
+                    </div>
+                    <div class="std-course">
+                        <label for="stdcourse">Course:</label>
+                        <input type="text" name="stdcourse" value="2022 - 2025" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </body>
 </html>
