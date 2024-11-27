@@ -111,3 +111,21 @@ CREATE TABLE IF NOT EXISTS `image_storage` (
     `upload_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`student_id`) REFERENCES `student_information`(`student_id`)
 );
+
+-- ----------------------------- student_details ------------------------------
+
+CREATE TABLE IF NOT EXISTS `student_details` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `student_id` VARCHAR(50) NOT NULL UNIQUE,
+    `student_name` VARCHAR(100) NOT NULL,
+    `birthday` DATE NOT NULL,
+    `birthplace` VARCHAR(255) NOT NULL,
+    `household_registration` VARCHAR(255) NOT NULL,
+    `citizen_identification` VARCHAR(20) NOT NULL UNIQUE,
+    `telephone` VARCHAR(15) NOT NULL,
+    `email` VARCHAR(100) NOT NULL UNIQUE,
+    `major` VARCHAR(10) NOT NULL,
+    `training_system` VARCHAR(50) NOT NULL,
+    `class` VARCHAR(50) NOT NULL,
+    `course` VARCHAR(50) NOT NULL
+);
