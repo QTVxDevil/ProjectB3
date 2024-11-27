@@ -393,7 +393,13 @@ def checking():
 
 @app.route('/std_information', methods=['GET', 'POST'])
 def std_information():
-    return render_template('/Student/information.html')
+    student_id = session.get('student_id')
+    
+    cursor = dtb.cursor()
+    cursor.execute("SELECT * FROM student_details WHERE student_id = %s", (student_id,))
+    details = cursor.fetchone()
+    
+    return render_template('/Student/information.html', details=details)
 
 @app.route('/std_classroom', methods=['GET', 'POST'])
 def std_classroom():
