@@ -53,12 +53,12 @@
 
                 <div class="input-box">
                     <label for="studentname">Student name:</label>
-                    <input type="text" id="studentname" name="studentname" readonly>
+                    <input type="text" id="studentname" readonly>
                 </div>
 
                 <div class="input-box">
                     <label for="studentid">Student ID:</label>
-                    <input type="text" id="studentid" name="studentid" readonly>
+                    <input type="text" id="studentid" readonly>
                 </div>
 
                 <div class="input-box">
@@ -80,7 +80,7 @@
     <script>
         function startWebcam() {
             // Set the src of the video element to the video feed URL
-            document.getElementById('video').src = "{{ url_for('video_feed') }}";
+            document.getElementById('video').src = "/video_feed";
             // Show the video stream
             document.getElementById('video').style.display = 'block';
             
@@ -88,6 +88,32 @@
             document.getElementById('static-image').style.display = 'none';
             document.getElementById('check-button').style.display = 'none';
         }
+
+        function checkMatch() {
+            fetch('/face_scan', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('studentname').value = data.student_name;
+                        document.getElementById('studentid').value = data.student_id;
+                        document.getElementById('time').value = data.matched_time;
+                        if (
+                            document.getElementById('studentname').value &&
+                            document.getElementById('studentid').value &&
+                            document.getElementById('time').value
+                        ) {
+                            document.getElementById('submitBtn').style.display = 'block';
+                        }
+                        
+                        clearInterval(checkInterval); // Stop checking
+                    } else if (data.status === 'error') {
+                        console.error(data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        const checkInterval = setInterval(checkMatch, 2000);
     </script>
     
 </html>

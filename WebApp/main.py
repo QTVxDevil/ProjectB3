@@ -9,6 +9,7 @@ from PIL import Image
 from datetime import datetime
 from waitress import serve
 import os
+from multiprocessing import Queue
 
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
@@ -84,14 +85,10 @@ class L1Dist(tf.keras.layers.Layer):
 
 tf.keras.utils.get_custom_objects()["L1Dist"] = L1Dist
 
-match_data = {}  
+matched_data_queue = Queue()
 
 def generate_frames(student_id):
-    global match_data  # Access the global dictionary
-    match_data[student_id] = {"student_info": None, "match_time": None}
-        
     siamese = tf.keras.models.load_model("Model/siamesemodel.h5")
-    
     reference_image = fetch_reference_image(student_id)
     if reference_image is None:
         raise ValueError("No reference image found for the student.")
@@ -107,31 +104,27 @@ def generate_frames(student_id):
 
             face = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Ensure 3-channel input for the model  
             processed_face = preprocess_image(face)  
-            student_fetch = fetch_reference_student(student_id)
-            if processed_face is None:
-                label = "Error: Invalid Input"
-                color = (0, 0, 255)
-            else:
-                similarity = siamese.predict([reference_image, processed_face])
-                label = "Matched" if similarity > 0.5 else "Not Matched"
-                color = (0, 255, 0) if label == "Matched" else (0, 0, 255)
-                print(f'prediction: {similarity}\nlabel: {label}')
-
-                if label == "Matched":
-                    match_data[student_id] = {
-                        "student_info": student_fetch,
-                        "match_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            similarity = siamese.predict([reference_image, processed_face])
+            print(f'prediction: {similarity}')
+            
+            if similarity > 0.59 and matched_data_queue.empty():
+                student_info = fetch_reference_student(student_id)
+                if student_info:
+                    student_name = student_info[0]
+                    matched_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    matched_data = {
+                        "student_id": student_id,
+                        "student_name": student_name,
+                        "matched_time": matched_time,
                     }
-                    print(f"Matched Student: {student_fetch}\nTime: {match_data[student_id]['match_time']}")
+                    matched_data_queue.put(matched_data)
+                    
                     break
-            
-            cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
-            
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-
+                 
+            _, buffer = cv2.imencode('.jpg', frame)
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')       
     finally:
         camera.release()
 
@@ -490,34 +483,30 @@ def std_attendance_checking():
 
 @app.route('/face_scan', methods=['GET', 'POST'])
 def face_scan():
+    if request.method == 'GET':
+        # Render the HTML template for face scanning
+        return render_template('/Student/facescan.html')
+    
     student_id = session.get('student_id')
     if not student_id:
-        flash("Please log in to access this feature.")
-        return redirect(url_for('homepage'))
-    return render_template('/Student/facescan.html')
+        return jsonify({"status": "error", "message": "Please log in to access this feature."}), 403
+    
+    if not matched_data_queue.empty():
+        matched_data = matched_data_queue.get()
+        return jsonify({
+            "status": "success",
+            "student_name": matched_data["student_name"],
+            "student_id": matched_data["student_id"],
+            "matched_time": matched_data["matched_time"]
+        })
+    
+    return jsonify({"status": "pending"})
 
 @app.route('/video_feed')
 def video_feed():
     student_id = session.get('student_id')
-    if not student_id:
-        flash("Please log in to access this feature.")
-        return redirect(url_for('homepage'))
-    try:
-        return Response(generate_frames(student_id), mimetype='multipart/x-mixed-replace; boundary=frame')
-    except Exception as e:
-        print(f"Error in video feed: {e}")
-        flash("An error occurred while accessing the video feed. Please try again later.", "danger")
-        return redirect(url_for('face_scan'))
     
-@app.route('/matched_info', methods=["GET", "POST"])
-def matched_info():
-    student_id = session.get('student_id')
-    if not student_id or student_id not in match_data:
-        flash("No match data available.", "warning")
-        return redirect(url_for('face_scan'))
-    match_info = match_data[student_id]
-    return f"Matched Student: {match_info['student_info']}<br>Match Time: {match_info['match_time']}" 
-
+    return Response(generate_frames(student_id), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 mode = 'dev'
 

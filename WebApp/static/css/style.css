@@ -663,10 +663,13 @@ th {
     border-radius: 3vh;
     margin-top: 1vh;
     margin-left: 2vw;
+    font-weight: bold;
+    font-size: 2.5vh;
+    text-align: center;
 }
 
 .input-box label {
-    font-size: 2.3vh;
+    font-size: 2.5vh;
     font-weight: bold;
     margin-left: 2.3vw;
 }
