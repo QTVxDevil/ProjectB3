@@ -71,14 +71,9 @@
                     <td>
                         <form method="POST">
                             <input type="hidden" name="row_id" value="{{ row[0] }}">
-                            <button type="button" class="att-view-button" onclick="toggleDropdown(event)">
-                                <i class="fa-solid fa-caret-down"></i>
+                            <button type="submit" name="action" value="view" class="view-button">
+                                <i class="fas fa-eye"></i>
                             </button>
-                            
-                            <div id="dropdown" class="dropdown-content" style="display: none;">
-                                <button type="submit" name="action" value="checking"><b>Checking</b></button>
-                                <button type="submit" name="action" value="view"><b>View</b></button>
-                            </div>
                         </form>
                     </td>
                 </tr>
@@ -86,34 +81,6 @@
             </tbody>
         </table>
     </section>
-    <script>
-        function toggleDropdown(event) {
-            event.stopPropagation(); // Prevents the click event from propagating to the window
-            const dropdown = event.currentTarget.closest("form").querySelector(".dropdown-content");
-            
-            // Close dropdown if it's already open
-            if (dropdown.style.display === "block") {
-                dropdown.style.display = "none";
-            } else {
-                // Close any other open dropdowns
-                closeAllDropdowns();
-                dropdown.style.display = "block";
-            }
-        }
-        
-        // Function to close the dropdown when clicking outside
-        window.onclick = function(event) {
-            if (!event.target.closest('.att-view-button')) {
-                closeAllDropdowns();
-            }
-        };
-        
-        function closeAllDropdowns() {
-            const dropdowns = document.getElementsByClassName("dropdown-content");
-            for (let i = 0; i < dropdowns.length; i++) {
-                dropdowns[i].style.display = "none";
-            }
-        }        
-      </script>
+    
 </body>
 </html>

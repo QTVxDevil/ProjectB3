@@ -443,9 +443,8 @@ def std_attendance():
         session['classroom_id'] = row_id
     
         if action == "view": 
-            return redirect(url_for('std_attendance_view'))
-        if action == 'checking':
-            return redirect(url_for('std_attendance_checking'))
+            return redirect(url_for('attendance_list'))
+        
     cursor = dtb.cursor()
     query = """
     SELECT c.id, c.nameofclass, c.major, c.begindate, c.enddate, c.nameoflecturer
@@ -459,21 +458,19 @@ def std_attendance():
     classrooms = cursor.fetchall()
     return render_template('/Student/attendance.html', classrooms=classrooms)
 
-@app.route('/view_attendance', methods=['GET', 'POST'])
-def std_attendance_view():
-    
-    return render_template('/Student/attendance_view.html')
-
-@app.route('/checking_attendance', methods=['GET', 'POST'])
-def std_attendance_checking():
+@app.route('/attendance_list', methods=['GET', 'POST'])
+def attendance_list():
     classroom_id = session.get('classroom_id')
     student_id = session.get('student_id')
     
     if request.method == "POST":
-        action = request.form['action']
         row_id = request.form['row_id']
+        action = request.form['action']
         
         if action == 'view':
+            session['row_id'] = row_id
+            return redirect(url_for('std_attendance_view'))
+        if action == 'checking':
             cursor = dtb.cursor()
             cursor.execute("SELECT student_id FROM student_attendance WHERE attendance_id = %s", (row_id,))
             check = cursor.fetchone()
@@ -486,12 +483,26 @@ def std_attendance_checking():
                 cursor.execute("SELECT date FROM attendance_checked WHERE id = %s", (row_id,))
                 date = cursor.fetchone()
                 flash(f"You have checked for {date[0]} !!!")
-                return redirect(url_for('std_attendance_checking'))
-        
+                return redirect(url_for('attendance_list'))
+            
     cursor = dtb.cursor()
     cursor.execute("SELECT * FROM attendance_checked WHERE classroom_id = %s", (classroom_id,))
     attendances = cursor.fetchall()
-    return render_template('/Student/attendance_checking.html', attendances=attendances)
+    return render_template('/Student/attendance_list.html', attendances=attendances)
+
+@app.route('/view_attendance', methods=['GET', 'POST'])
+def std_attendance_view():
+    row_id = session.get('row_id')
+        
+    cursor = dtb.cursor()
+    cursor.execute("""
+                    SELECT * FROM student_attendance
+                    WHERE attendance_id = %s
+                    """, (row_id,))
+    checked_list = cursor.fetchall()
+    
+    return render_template('/Student/attendance_view.html', checked_list=checked_list)
+
 
 @app.route('/face_scan', methods=['GET', 'POST'])
 def face_scan():

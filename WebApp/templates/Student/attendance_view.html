@@ -46,5 +46,29 @@
         </div>
     </section>
     
+    <section class="att-infor">
+        <div class="std-add-form">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Student name</th>
+                        <th>Student ID</th>
+                        <th>Time checking</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in checked_list %}
+                    <tr>
+                        <td>{{ loop.index }}</td> <!-- Display row index (STT) -->
+                        <td>{{ row[1] }}</td> <!-- Date -->
+                        <td>{{ row[2] }}</td> <!-- Time -->
+                        <td>{{ row[3] }}</td> <!-- Place -->
+                    </tr>   
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 </body>
 </html>
