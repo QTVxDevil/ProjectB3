@@ -100,6 +100,17 @@ ADD CONSTRAINT `classroom_ibfk_2`
 FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`)
 ON DELETE CASCADE;
 
+-- ---------------------------- student_attendance ---------------------------
+
+CREATE TABLE IF NOT EXISTS `student_attendance` (
+	`id` INT AUTO_INCREMENT PRIMARY KEY,
+    `student_name` VARCHAR(100) NOT NULL,
+    `student_id` VARCHAR(50) NOT NULL,
+    `time_checking` DATETIME NOT NULL,
+    `attendance_id` INT NOT NULL,
+    FOREIGN KEY (`attendance_id`) REFERENCES `attendance_checked`(`id`)
+);
+
 
 -- ---------------------------- image storage ---------------------------------
 
@@ -129,3 +140,4 @@ CREATE TABLE IF NOT EXISTS `student_details` (
     `class` VARCHAR(50) NOT NULL,
     `course` VARCHAR(50) NOT NULL
 );
+
