@@ -22,7 +22,6 @@ VALUES
 ('22BI13049', 'ĐÀO XUÂN BÁCH', '2004-01-01', 'Hải Phòng', 'Hòa Bình, Vinh Quang, Tiên Lãng, Hải Phòng', '012345678910', '1234567890', 'BachDX.22BI13049@usth.edu.vn', 'DS', 'University', 'DS BI13', '2022-2025');
 
 
-select * from student_details;
 
 
 
