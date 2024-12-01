@@ -711,7 +711,7 @@ th {
 }
 
 .webcam {
-    border-radius: 0;
+    border-radius: 50%;
 }
 
 .std-info {

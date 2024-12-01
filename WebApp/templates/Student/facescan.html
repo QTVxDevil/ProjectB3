@@ -48,17 +48,17 @@
     
     <section class="face-scan">
         <div class="infor-container">
-            <form method="POST">
+            <form method="POST" action="/submit_data">
                 <h1>Informations</h1>
 
                 <div class="input-box">
                     <label for="studentname">Student name:</label>
-                    <input type="text" id="studentname" readonly>
+                    <input type="text" id="studentname" name="studentname" readonly>
                 </div>
 
                 <div class="input-box">
                     <label for="studentid">Student ID:</label>
-                    <input type="text" id="studentid" readonly>
+                    <input type="text" id="studentid" name="studentid" readonly>
                 </div>
 
                 <div class="input-box">
@@ -89,6 +89,7 @@
             document.getElementById('check-button').style.display = 'none';
         }
 
+
         function checkMatch() {
             fetch('/face_scan', { method: 'POST' })
                 .then(response => response.json())
@@ -97,15 +98,8 @@
                         document.getElementById('studentname').value = data.student_name;
                         document.getElementById('studentid').value = data.student_id;
                         document.getElementById('time').value = data.matched_time;
-                        if (
-                            document.getElementById('studentname').value &&
-                            document.getElementById('studentid').value &&
-                            document.getElementById('time').value
-                        ) {
-                            document.getElementById('submitBtn').style.display = 'block';
-                        }
-                        
-                        clearInterval(checkInterval); // Stop checking
+                        document.getElementById('submitBtn').style.display = 'block';
+                        clearInterval(checkInterval);
                     } else if (data.status === 'error') {
                         console.error(data.message);
                     }

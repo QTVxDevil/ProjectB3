@@ -108,7 +108,7 @@ def generate_frames(student_id):
             similarity = siamese.predict([reference_image, processed_face])
             print(f'prediction: {similarity}')
             
-            if similarity > 0.59 and matched_data_queue.empty():
+            if similarity > 0.55 and matched_data_queue.empty():
                 student_info = fetch_reference_student(student_id)
                 if student_info:
                     student_name = student_info[0]
@@ -461,20 +461,32 @@ def std_attendance():
 
 @app.route('/view_attendance', methods=['GET', 'POST'])
 def std_attendance_view():
+    
     return render_template('/Student/attendance_view.html')
 
 @app.route('/checking_attendance', methods=['GET', 'POST'])
 def std_attendance_checking():
     classroom_id = session.get('classroom_id')
+    student_id = session.get('student_id')
     
     if request.method == "POST":
         action = request.form['action']
         row_id = request.form['row_id']
         
         if action == 'view':
-            session['row_id'] = row_id
-            print(row_id)
-            return redirect(url_for('face_scan'))
+            cursor = dtb.cursor()
+            cursor.execute("SELECT student_id FROM student_attendance WHERE attendance_id = %s", (row_id,))
+            check = cursor.fetchone()
+            
+            if check is None or student_id not in check:
+                session['checked_id'] = row_id
+                return redirect(url_for('face_scan'))
+            elif student_id in check:
+                cursor = dtb.cursor()
+                cursor.execute("SELECT date FROM attendance_checked WHERE id = %s", (row_id,))
+                date = cursor.fetchone()
+                flash(f"You have checked for {date[0]} !!!")
+                return redirect(url_for('std_attendance_checking'))
         
     cursor = dtb.cursor()
     cursor.execute("SELECT * FROM attendance_checked WHERE classroom_id = %s", (classroom_id,))
@@ -484,29 +496,48 @@ def std_attendance_checking():
 @app.route('/face_scan', methods=['GET', 'POST'])
 def face_scan():
     if request.method == 'GET':
-        # Render the HTML template for face scanning
         return render_template('/Student/facescan.html')
     
     student_id = session.get('student_id')
+    
     if not student_id:
         return jsonify({"status": "error", "message": "Please log in to access this feature."}), 403
     
     if not matched_data_queue.empty():
-        matched_data = matched_data_queue.get()
+        matched_data = matched_data_queue.get()                      
+        
         return jsonify({
             "status": "success",
             "student_name": matched_data["student_name"],
             "student_id": matched_data["student_id"],
             "matched_time": matched_data["matched_time"]
         })
-    
+        
     return jsonify({"status": "pending"})
 
 @app.route('/video_feed')
 def video_feed():
     student_id = session.get('student_id')
-    
     return Response(generate_frames(student_id), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/submit_data', methods=['POST'])
+def submit_data():
+    if request.method == "POST":
+        student_name = request.form['studentname']
+        student_id = request.form['studentid']
+        matched_time = request.form['time']
+        checked_id = session.get('checked_id')
+        print(f"name: {student_name}\nid: {student_id}\stt: {checked_id}")
+        
+        cursor = dtb.cursor()
+        cursor.execute("""
+                       INSERT INTO student_attendance(student_name, student_id, time_checking, attendance_id)
+                       VALUES (%s, %s, %s, %s)""", (student_name, student_id, matched_time, checked_id,))
+        dtb.commit()
+    
+        return redirect(url_for('std_attendance_view'))
+    
+    return redirect(url_for('std_attendance_view'))
 
 mode = 'dev'
 
