@@ -20,19 +20,19 @@ app.secret_key = "any-string-you-want-just-keep-it-secret"
 dtb = mysql.connector.connect(
     host="127.0.0.1",  
     user="root",       
-    password="super123",      
-    database="gp2425" 
+    password="super123",     
+    database="gp24-25" 
 )
 
 def delete(row_id):
     cursor = dtb.cursor(dictionary=True)
     
-    cursor.execute("DELETE FROM classroom WHERE id = %s", (row_id,))
+    cursor.execute("DELETE FROM course WHERE id = %s", (row_id,))
     dtb.commit()
     
     cursor.execute("SET @row_number = 0;")
     cursor.execute("""
-        UPDATE classroom SET id = (@row_number:=@row_number + 1)
+        UPDATE course SET id = (@row_number:=@row_number + 1)
         ORDER BY id;
     """)
     
@@ -60,7 +60,7 @@ def fetch_reference_image(student_id):
 def fetch_reference_student(student_id):
     cursor = dtb.cursor()
     try:
-        cursor.execute("SELECT student_name FROM student_information WHERE student_id = %s", (student_id,))
+        cursor.execute("SELECT student_name FROM student_infor WHERE student_id = %s", (student_id,))
         student_info = cursor.fetchone()
         return student_info
     finally:
@@ -138,7 +138,7 @@ def homepage():
         role = request.form['choice']
         
         cursor = dtb.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM user_auth WHERE email = %s AND password = %s AND role = %s", (email, password, role))
+        cursor.execute("SELECT * FROM user_auth WHERE account = %s AND password = %s AND role = %s", (email, password, role))
         user = cursor.fetchone()  
         
         if not user:
@@ -179,7 +179,7 @@ def information():
             return redirect(url_for('addstudent'))
         
     cursor = dtb.cursor()
-    cursor.execute("SELECT * FROM classroom WHERE nameoflecturer = %s", (name,))
+    cursor.execute("SELECT * FROM course WHERE nameoflecturer = %s", (name,))
     
     classroom_data = cursor.fetchall()
     
@@ -196,7 +196,7 @@ def classroom():
         
         cursor = dtb.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM classroom WHERE nameofclass = %s AND major = %s", (class_name, major))
+        cursor.execute("SELECT * FROM course WHERE nameofclass = %s AND major = %s", (class_name, major))
         exist_class = cursor.fetchone()
         
         if exist_class:
@@ -204,7 +204,7 @@ def classroom():
             return redirect('classroom')
         else:
             cursor.execute('''
-                INSERT INTO classroom (nameofclass, nameoflecturer, major, begindate, enddate)
+                INSERT INTO course (nameofclass, nameoflecturer, major, begindate, enddate)
                 VALUES (%s, %s, %s, %s, %s)
             ''', (class_name, lecturer_name, major, start_date, end_date))
             
@@ -212,7 +212,7 @@ def classroom():
         
         cursor.execute("SET @row_number = 0;")
         cursor.execute("""
-            UPDATE classroom SET id = (@row_number:=@row_number + 1)
+            UPDATE course SET id = (@row_number:=@row_number + 1)
             ORDER BY id;
         """)
     
@@ -239,73 +239,69 @@ def addstudent():
                     return redirect(url_for('addstudent'))
                  
                 cursor = dtb.cursor()
-                new_students = []
-                updated_classrooms = []
+                
+                added_students = []
+                existing_students = []
+
+                # Iterate through the DataFrame
                 for _, row in df.iterrows():
+                    student_id = row.get('Student id')  # Adjust column name if needed
+                    if not student_id:
+                        continue  # Skip rows without a valid student_id
+
+                    # Check if the student exists in the database
                     cursor.execute(
-                        "SELECT * FROM student_information WHERE student_id = %s", (row['Student id'],)
+                        "SELECT * FROM student_infor WHERE student_id = %s", (student_id,)
                     )
                     existing_student = cursor.fetchone()
-                    
-                    if not existing_student:
+
+                    if existing_student:
+                        # Check if the student is already in the course
                         cursor.execute(
-                            "INSERT INTO student_information (student_name, student_id, major) VALUES (%s, %s, %s)",
-                            (row['Student name'], row['Student id'], row['Major'])
+                            "SELECT * FROM student_in_course WHERE student_id = %s AND course_id = %s",
+                            (student_id, classroom_id)
                         )
-                        new_students.append((row['Student name'], row['Student id']))
-                        dtb.commit()
-                        
-                    cursor.execute(
-                        "SELECT * FROM student_classroom WHERE student_id = %s AND classroom_id = %s",
-                        (row['Student id'], classroom_id)
-                    )
-                    existing_classroom = cursor.fetchone()    
-                        
-                    if not existing_classroom:
-                        cursor.execute(
-                            "INSERT INTO student_classroom (student_id, classroom_id) "
-                            "VALUES (%s, %s)",
-                            (row['Student id'], classroom_id)
-                        )
-                        updated_classrooms.append((row['Student name'], row['Student id']))
+                        student_in_course = cursor.fetchone()
+
+                        if student_in_course:
+                            existing_students.append(student_id)
+                        else:
+                            # Insert student into the course
+                            cursor.execute(
+                                "INSERT INTO student_in_course (student_id, course_id) VALUES (%s, %s)",
+                                (student_id, classroom_id)
+                            )
+                            added_students.append(student_id)
+
+                # Commit changes to the database
                 dtb.commit()
-                
-                if new_students:
-                    for student_name, student_id in new_students:
-                        flash(f'Student {student_name} (ID: {student_id}) has been inserted into the database.')
-                if updated_classrooms:
-                    for student_name, student_id in updated_classrooms:
-                        flash(f'Student {student_name} (ID: {student_id}) has been added to classroom {classroom_id}.')
-                if not new_students and not updated_classrooms:
-                    flash('No new students were added or updated.')
 
-                return redirect(url_for('addstudent'))
+                # Flash messages
+                if added_students:
+                    flash(f"Added {len(added_students)} students to the course.", "success")
+                if existing_students:
+                    flash(f"The following students were already in the course: {', '.join(existing_students)}.", "warning")
             
-
             except Exception as e:
+                dtb.rollback()
                 flash(f"An error occurred: {str(e)}", "danger")
-                return redirect(url_for('addstudent'))
-        else:
-            flash("No file selected.", "warning")
-            return redirect(url_for('addstudent'))
-        
-    cursor = dtb.cursor()   
-    cursor.execute("""
-        SELECT s.student_id, s.student_name, s.major, s.face_id
-        FROM student_information s
-        JOIN student_classroom sc ON s.student_id = sc.student_id
-        WHERE sc.classroom_id = %s
-    """, (classroom_id,))
-    students = cursor.fetchall()
-    
-    cursor.execute("SET @row_number = 0;")
-    cursor.execute("""
-        UPDATE student_information SET id = (@row_number:=@row_number + 1)
-        ORDER BY id;
-    """)
-    
-    dtb.commit()
-           
+            finally:
+                cursor.close()
+
+    # Fetch students associated with the course for display
+    try:
+        cursor = dtb.cursor()
+        cursor.execute("""
+            SELECT s.student_id, si.student_name, si.major, si.student_id AS face_id
+            FROM student_in_course s
+            JOIN student_infor si ON s.student_id = si.student_id
+            WHERE s.course_id = %s
+        """, (classroom_id,))
+        students = cursor.fetchall()
+        cursor.close()
+    except Exception as e:
+        flash(f"Failed to fetch students: {str(e)}", "danger")
+            
     return render_template("/Lecturer/AddStudent.html", students=students)
 
 @app.route('/attandence', methods=['GET', 'POST'])
@@ -320,7 +316,7 @@ def attendance():
             return redirect(url_for('attendance_information'))
         
     cursor = dtb.cursor()
-    cursor.execute("SELECT * FROM classroom WHERE nameoflecturer = %s", (name,))
+    cursor.execute("SELECT * FROM course WHERE nameoflecturer = %s", (name,))
     classroom_data = cursor.fetchall()
     return render_template("/Lecturer/Attendance.html", classroom_data=classroom_data)
 
@@ -356,7 +352,7 @@ def attendance_information():
         
         try:            
             cursor = dtb.cursor()
-            cursor.execute("INSERT INTO attendance_checked (date, time, place, classroom_id) VALUES (%s, %s, %s, %s)",
+            cursor.execute("INSERT INTO attendance_checked (date, time, place, course_id) VALUES (%s, %s, %s, %s)",
                         (date, time, place, classroom_id,))
             dtb.commit()
             flash("Attendance record successfully created!")
@@ -376,22 +372,59 @@ def attendance_information():
     currentTime = now.strftime("%H:%M")
     
     cursor = dtb.cursor()
-    cursor.execute("SELECT id, date, time, place FROM attendance_checked WHERE classroom_id = %s", (classroom_id,))
+    cursor.execute("SELECT id, date, time, place FROM attendance_checked WHERE course_id = %s", (classroom_id,))
     checked = cursor.fetchall()    
     return render_template("/Lecturer/attendance_information.html", currentDate=currentDate, currentTime=currentTime, checked=checked)
 
 @app.route('/checking', methods=['GET', 'POST'])
 def checking():
-    return render_template('/Lecturer/attendance_checking.html')
+    classroom_id = session.get('classroom_id')
+    
+    cursor = dtb.cursor()
+    cursor.execute("""
+                   SELECT si.student_name, sa.student_id, sa.time_checking
+                   FROM student_attendance sa
+                   JOIN student_infor_details sid ON sa.student_id = sid.student_id
+                   JOIN student_infor si ON sid.student_id = si.student_id
+                   WHERE sa.attendance_id = %s 
+                    """, (classroom_id,))
+    checked_list = cursor.fetchall()
+    return render_template('/Lecturer/attendance_checking.html', checked_list=checked_list)
 
 @app.route('/std_information', methods=['GET', 'POST'])
 def std_information():
     student_id = session.get('student_id')
     
-    cursor = dtb.cursor()
-    cursor.execute("SELECT * FROM student_details WHERE student_id = %s", (student_id,))
-    details = cursor.fetchone()
-    
+    if not student_id:
+        flash("You are not logged in!", "danger")
+        return redirect(url_for('login'))
+
+    try:
+        cursor = dtb.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT 
+                si.student_id, si.student_name, sid.birthday, sid.birthplace,
+                sid.household_registration, sid.citizen_identification,
+                sid.telephone, sid.email, si.major, sid.training_system,
+                sid.class, sid.course
+            FROM student_infor si
+            JOIN student_infor_details sid ON si.student_id = sid.student_id
+            WHERE si.student_id = %s
+        """, (student_id,))
+        
+        details = cursor.fetchone()
+        
+        print(details)
+        
+        if not details:
+            flash("Student details not found!", "warning")
+            return redirect(url_for('homepage'))
+        
+    except Exception as e:
+        flash(f"An error occurred: {e}", "danger")
+        details = None
+    finally:
+        cursor.close()
     return render_template('/Student/information.html', details=details)
 
 @app.route('/std_classroom', methods=['GET', 'POST'])
@@ -407,9 +440,9 @@ def std_classroom():
     cursor = dtb.cursor()
     query = """
     SELECT c.id, c.nameofclass, c.major, c.begindate, c.enddate, c.nameoflecturer
-    FROM student_classroom sc
-    JOIN classroom c ON sc.classroom_id = c.id
-    JOIN student_information si ON sc.student_id = si.student_id
+    FROM student_in_course sc
+    JOIN course c ON sc.course_id = c.id
+    JOIN student_infor si ON sc.student_id = si.student_id
     WHERE si.student_id = %s
     """
     cursor.execute(query, (std_id,))
@@ -424,10 +457,10 @@ def std_list():
     
     cursor = dtb.cursor()
     cursor.execute("""
-                    SELECT s.student_id, s.student_name, s.major, s.face_id
-                    FROM student_information s
-                    JOIN student_classroom sc ON s.student_id = sc.student_id
-                    WHERE sc.classroom_id = %s
+                    SELECT s.student_id, s.student_name, s.major
+                    FROM student_infor s
+                    JOIN student_in_course sc ON s.student_id = sc.student_id
+                    WHERE sc.course_id = %s
                 """, (row_id,))
     students = cursor.fetchall()
 
@@ -448,9 +481,9 @@ def std_attendance():
     cursor = dtb.cursor()
     query = """
     SELECT c.id, c.nameofclass, c.major, c.begindate, c.enddate, c.nameoflecturer
-    FROM student_classroom sc
-    JOIN classroom c ON sc.classroom_id = c.id
-    JOIN student_information si ON sc.student_id = si.student_id
+    FROM student_in_course sc
+    JOIN course c ON sc.course_id = c.id
+    JOIN student_infor si ON sc.student_id = si.student_id
     WHERE si.student_id = %s
     """
     cursor.execute(query, (std_id,))
@@ -486,20 +519,24 @@ def attendance_list():
                 return redirect(url_for('attendance_list'))
             
     cursor = dtb.cursor()
-    cursor.execute("SELECT * FROM attendance_checked WHERE classroom_id = %s", (classroom_id,))
+    cursor.execute("SELECT * FROM attendance_checked WHERE course_id = %s", (classroom_id,))
     attendances = cursor.fetchall()
     return render_template('/Student/attendance_list.html', attendances=attendances)
 
 @app.route('/view_attendance', methods=['GET', 'POST'])
 def std_attendance_view():
     row_id = session.get('row_id')
-        
+    
     cursor = dtb.cursor()
     cursor.execute("""
-                    SELECT * FROM student_attendance
-                    WHERE attendance_id = %s
+                   SELECT si.student_name, sa.student_id, sa.time_checking
+                   FROM student_attendance sa
+                   JOIN student_infor_details sid ON sa.student_id = sid.student_id
+                   JOIN student_infor si ON sid.student_id = si.student_id
+                   WHERE sa.attendance_id = %s 
                     """, (row_id,))
     checked_list = cursor.fetchall()
+    
     
     return render_template('/Student/attendance_view.html', checked_list=checked_list)
 
@@ -534,16 +571,14 @@ def video_feed():
 @app.route('/submit_data', methods=['POST'])
 def submit_data():
     if request.method == "POST":
-        student_name = request.form['studentname']
         student_id = request.form['studentid']
         matched_time = request.form['time']
         checked_id = session.get('checked_id')
-        print(f"name: {student_name}\nid: {student_id}\stt: {checked_id}")
         
         cursor = dtb.cursor()
         cursor.execute("""
-                       INSERT INTO student_attendance(student_name, student_id, time_checking, attendance_id)
-                       VALUES (%s, %s, %s, %s)""", (student_name, student_id, matched_time, checked_id,))
+                       INSERT INTO student_attendance(student_id, time_checking, attendance_id)
+                       VALUES (%s, %s, %s)""", (student_id, matched_time, checked_id,))
         dtb.commit()
     
         return redirect(url_for('std_attendance_view'))
