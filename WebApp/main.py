@@ -328,7 +328,7 @@ def attendance_information():
         if 'action' in request.form:
             action = request.form['action']
             row_id = request.form['row_id']
-        
+            
             if action == 'view':
                 session['checked_id'] = row_id
                 return redirect(url_for('checking'))
@@ -378,7 +378,8 @@ def attendance_information():
 
 @app.route('/checking', methods=['GET', 'POST'])
 def checking():
-    classroom_id = session.get('classroom_id')
+    checked_id = session.get('checked_id')
+    print(f"{checked_id}")
     
     cursor = dtb.cursor()
     cursor.execute("""
@@ -386,8 +387,8 @@ def checking():
                    FROM student_attendance sa
                    JOIN student_infor_details sid ON sa.student_id = sid.student_id
                    JOIN student_infor si ON sid.student_id = si.student_id
-                   WHERE sa.attendance_id = %s 
-                    """, (classroom_id,))
+                   WHERE sa.attendance_id = %s
+                    """, (checked_id,))
     checked_list = cursor.fetchall()
     return render_template('/Lecturer/attendance_checking.html', checked_list=checked_list)
 
@@ -413,8 +414,6 @@ def std_information():
         """, (student_id,))
         
         details = cursor.fetchone()
-        
-        print(details)
         
         if not details:
             flash("Student details not found!", "warning")
