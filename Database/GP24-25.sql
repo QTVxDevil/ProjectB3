@@ -55,7 +55,7 @@ DELIMITER ;
 
 -- --------------------------- classroom ------------------------------
 
-CREATE TABLE IF NOT EXISTS `classroom` (
+CREATE TABLE IF NOT EXISTS `course` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `nameofclass` VARCHAR(100) NOT NULL,
     `major` VARCHAR(100) NOT NULL,
@@ -66,12 +66,12 @@ CREATE TABLE IF NOT EXISTS `classroom` (
 
 -- --------------------------- student_class -----------------------------
 
-CREATE TABLE IF NOT EXISTS `student_class` (
+CREATE TABLE IF NOT EXISTS `student_in_course` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `student_id` VARCHAR(20) NOT NULL,
-    `class_id` INT NOT NULL,
+    `course_id` INT NOT NULL,
     FOREIGN KEY (`student_id`) REFERENCES `student_infor_details`(`student_id`) ON DELETE CASCADE,
-    FOREIGN KEY (`class_id`) REFERENCES `classroom`(`id`) ON DELETE CASCADE
+    FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE CASCADE
 );
 
 -- --------------------------- attendance_checked ---------------------------
@@ -81,8 +81,8 @@ CREATE TABLE IF NOT EXISTS `attendance_checked` (
     `date` DATE NOT NULL,
     `time` TIME NOT NULL,
     `place` VARCHAR(100) NOT NULL,
-    `classroom_id` INT NOT NULL,
-    FOREIGN KEY (`classroom_id`) REFERENCES `classroom`(`id`) ON DELETE CASCADE
+    `course_id` INT NOT NULL,
+    FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE CASCADE
 );
 
 -- ---------------------------- student_attendance ----------------------------
