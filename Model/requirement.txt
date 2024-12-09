@@ -1,5 +1,6 @@
 opencv-python
 numpy 
-tensorflow-gpu 
 matplotlib
-
+mtcnn
+facenet-pytorch
+scikit-learn
