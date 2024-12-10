@@ -78,12 +78,24 @@ CREATE TABLE IF NOT EXISTS `student_in_course` (
 
 CREATE TABLE IF NOT EXISTS `attendance_checked` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `date` DATE NOT NULL,
-    `time` TIME NOT NULL,
+    `start_time`DATETIME NOT NULL,
     `place` VARCHAR(100) NOT NULL,
+    `end_time` DATETIME NOT NULL,
     `course_id` INT NOT NULL,
     FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE CASCADE
 );
+
+DELIMITER //
+
+CREATE TRIGGER set_end_time
+BEFORE INSERT ON `attendance_checked`
+FOR EACH ROW
+BEGIN
+    SET NEW.end_time = DATE_ADD(NEW.start_time, INTERVAL 3 MINUTE);
+END;
+//
+
+DELIMITER ;
 
 -- ---------------------------- student_attendance ----------------------------
 
