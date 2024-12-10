@@ -65,13 +65,8 @@
 
         <div id="attendance-form" class="form-box" style="display: none;">
             <form method="POST">
-                <label for="date"><b>Date:</b></label><br>
-                
-                <input type="date" id="date" name="date" value="{{ currentDate }}"><br><br>
-                
-                <label for="time"><b>Time:</b></label><br>
-                
-                <input type="time" id="time" name="time" value="{{ currentTime }}"><br><br>
+                <label for="start_time"><b>Start Time:</b></label><br>
+                <input type="datetime-local" id="start_time" name="start_time" value="{{ currentDateTime }}" required><br><br>
                 
                 <label for="place"><b>Place:</b></label><br>
                 <input type="text" id="place" name="place" placeholder="Enter location" required><br><br>
@@ -85,8 +80,7 @@
                 <thead>
                     <tr>
                         <th>STT</th>
-                        <th>Date</th>
-                        <th>Time</th>
+                        <th>Start Time</th>
                         <th>Place</th>
                         <th class="att-th-form">Action</th>
                         
@@ -96,9 +90,8 @@
                     {% for row in checked %}
                     <tr>
                         <td>{{ loop.index }}</td> <!-- Display row index (STT) -->
-                        <td>{{ row[1] }}</td> <!-- Date -->
-                        <td>{{ row[2] }}</td> <!-- Time -->
-                        <td>{{ row[3] }}</td> <!-- Place -->
+                        <td>{{ row[1] }}</td> <!-- Start Time -->
+                        <td>{{ row[2] }}</td> <!-- Place -->
                         <td>
                             <form method="POST">
                                 <input type="hidden" name="row_id" value="{{ row[0] }}">
@@ -127,7 +120,7 @@
         }
 
         function confirmDelete(deletedDate, deletedTime) {
-            return confirm("Confirm for deletion of attendance check on " + deletedDate + " at " + deletedTime + "?")
+            return confirm("Confirm deletion of attendance check on " + startTime + "?")
         }
     </script>
     

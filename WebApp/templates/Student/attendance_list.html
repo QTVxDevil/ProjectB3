@@ -60,8 +60,7 @@
             <thead>
                 <tr>
                     <th>STT</th>
-                    <th>Date</th>
-                    <th>Time</th>
+                    <th>Start time</th>
                     <th>Place</th>
                     <th class="att-th-form">Action</th>
                 </tr>
@@ -70,18 +69,19 @@
                 {% for row in attendances %}
                 <tr>
                     <td>{{ loop.index }}</td> <!-- Display row index (STT) -->
-                        <td>{{ row[1] }}</td> <!-- Date -->
-                        <td>{{ row[2] }}</td> <!-- Time -->
-                        <td>{{ row[3] }}</td> <!-- Place -->
+                        <td>{{ row['start_time'] }}</td> <!-- Date -->
+                        <td>{{ row['place'] }}</td> <!-- Place -->
                     <td>
                         <form method="POST">
-                            <input type="hidden" name="row_id" value="{{ row[0] }}">
+                            <input type="hidden" name="row_id" value="{{ row['id'] }}">
                             <button type="button" class="att-view-button" onclick="toggleDropdown(event)">
                                 <i class="fa-solid fa-caret-down"></i>
                             </button>
                             
                             <div id="dropdown" class="dropdown-content" style="display: none;">
-                                <button type="submit" name="action" value="checking"><b>Checking</b></button>
+                                {% if current_time <= row['end_time'] %}
+                                    <button type="submit" name="action" value="checking"><b>Checking</b></button>
+                                {% endif %}
                                 <button type="submit" name="action" value="view"><b>View</b></button>
                             </div>
                         </form>

@@ -108,7 +108,7 @@ def generate_frames(student_id):
             similarity = siamese.predict([reference_image, processed_face])
             print(f'prediction: {similarity}')
             
-            if similarity > 0.55 and matched_data_queue.empty():
+            if similarity > 0.2 and matched_data_queue.empty():
                 student_info = fetch_reference_student(student_id)
                 if student_info:
                     student_name = student_info[0]
@@ -346,14 +346,13 @@ def attendance_information():
                 
                 return redirect(url_for('attendance_information'))
         
-        date = request.form['date']
-        time = request.form['time']
+        start_time = request.form['start_time']
         place = request.form['place']
         
         try:            
             cursor = dtb.cursor()
-            cursor.execute("INSERT INTO attendance_checked (date, time, place, course_id) VALUES (%s, %s, %s, %s)",
-                        (date, time, place, classroom_id,))
+            cursor.execute("INSERT INTO attendance_checked (start_time, place, course_id) VALUES (%s, %s, %s)",
+                        (start_time, place, classroom_id,))
             dtb.commit()
             flash("Attendance record successfully created!")
             
@@ -368,13 +367,12 @@ def attendance_information():
         return redirect(url_for('attendance_information'))
     
     now = datetime.now()
-    currentDate = now.strftime("%Y-%m-%d")
-    currentTime = now.strftime("%H:%M")
+    currentDateTime = now.strftime("%Y-%m-%dT%H:%M")
     
     cursor = dtb.cursor()
-    cursor.execute("SELECT id, date, time, place FROM attendance_checked WHERE course_id = %s", (classroom_id,))
-    checked = cursor.fetchall()    
-    return render_template("/Lecturer/attendance_information.html", currentDate=currentDate, currentTime=currentTime, checked=checked)
+    cursor.execute("SELECT id, start_time, place FROM attendance_checked WHERE course_id = %s", (classroom_id,))
+    checked = cursor.fetchall()  
+    return render_template("/Lecturer/attendance_information.html", currentDateTime=currentDateTime, checked=checked)
 
 @app.route('/checking', methods=['GET', 'POST'])
 def checking():
@@ -497,30 +495,42 @@ def attendance_list():
     
     if request.method == "POST":
         row_id = request.form['row_id']
+        print(f'row_id: {row_id}')
         action = request.form['action']
+        
+        cursor = dtb.cursor(dictionary=True)
+        cursor.execute("SELECT end_time FROM attendance_checked WHERE id = %s", (row_id,))
+        attendance = cursor.fetchone()
         
         if action == 'view':
             session['row_id'] = row_id
             return redirect(url_for('std_attendance_view'))
+        
+            
         if action == 'checking':
-            cursor = dtb.cursor()
-            cursor.execute("SELECT student_id FROM student_attendance WHERE attendance_id = %s", (row_id,))
-            check = cursor.fetchone()
-            
-            if check is None or student_id not in check:
-                session['checked_id'] = row_id
-                return redirect(url_for('face_scan'))
-            elif student_id in check:
+            if datetime.now() <= attendance['end_time']:
                 cursor = dtb.cursor()
-                cursor.execute("SELECT date FROM attendance_checked WHERE id = %s", (row_id,))
-                date = cursor.fetchone()
-                flash(f"You have checked for {date[0]} !!!")
-                return redirect(url_for('attendance_list'))
+                cursor.execute("SELECT student_id FROM student_attendance WHERE attendance_id = %s", (row_id,))
+                check = cursor.fetchone()
             
-    cursor = dtb.cursor()
+                if check is None or student_id not in check:
+                    session['checked_id'] = row_id
+                    return redirect(url_for('face_scan'))
+                elif student_id in check:
+                    cursor = dtb.cursor()
+                    cursor.execute("SELECT start_time FROM attendance_checked WHERE id = %s", (row_id,))
+                    date = cursor.fetchone()
+                    flash(f"You have checked for {date[0]} !!!")
+                    return redirect(url_for('attendance_list'))
+            else:
+                flash("The checking window has closed. You can only view attendance.")
+                return redirect(url_for('attendance_list'))
+        
+    current_time = datetime.now()        
+    cursor = dtb.cursor(dictionary=True)
     cursor.execute("SELECT * FROM attendance_checked WHERE course_id = %s", (classroom_id,))
     attendances = cursor.fetchall()
-    return render_template('/Student/attendance_list.html', attendances=attendances)
+    return render_template('/Student/attendance_list.html', attendances=attendances, current_time=current_time)
 
 @app.route('/view_attendance', methods=['GET', 'POST'])
 def std_attendance_view():
@@ -573,6 +583,8 @@ def submit_data():
         student_id = request.form['studentid']
         matched_time = request.form['time']
         checked_id = session.get('checked_id')
+        
+        session['row_id'] = checked_id
         
         cursor = dtb.cursor()
         cursor.execute("""
