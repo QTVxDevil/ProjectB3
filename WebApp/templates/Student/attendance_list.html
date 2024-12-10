@@ -62,6 +62,7 @@
                     <th>STT</th>
                     <th>Start time</th>
                     <th>Place</th>
+                    <th>Time Remaining</th>
                     <th class="att-th-form">Action</th>
                 </tr>
             </thead>
@@ -69,8 +70,11 @@
                 {% for row in attendances %}
                 <tr>
                     <td>{{ loop.index }}</td> <!-- Display row index (STT) -->
-                        <td>{{ row['start_time'] }}</td> <!-- Date -->
-                        <td>{{ row['place'] }}</td> <!-- Place -->
+                    <td>{{ row['start_time'] }}</td> <!-- Date -->
+                    <td>{{ row['place'] }}</td> <!-- Place -->
+                    <td>
+                        <span class="countdown" data-endtime="{{ row['end_time'] }}"></span>
+                    </td>
                     <td>
                         <form method="POST">
                             <input type="hidden" name="row_id" value="{{ row['id'] }}">
@@ -118,7 +122,35 @@
             for (let i = 0; i < dropdowns.length; i++) {
                 dropdowns[i].style.display = "none";
             }
-        }        
+        }
+        
+        function initializeCountdown() {
+            const countdownElements = document.querySelectorAll('.countdown');
+            
+            countdownElements.forEach(element => {
+                const endTime = new Date(element.dataset.endtime).getTime();
+
+                function updateCountdown() {
+                    const now = new Date().getTime();
+                    const remainingTime = endTime - now;
+
+                    if (remainingTime > 0) {
+                        const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+                        element.textContent = `${hours}h ${minutes}m ${seconds}s`;
+                    } else {
+                        element.textContent = "Time's up!";
+                    }
+                }
+
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeCountdown);        
       </script>
 </body>
 </html>

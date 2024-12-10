@@ -523,7 +523,7 @@ def attendance_list():
                     flash(f"You have checked for {date[0]} !!!")
                     return redirect(url_for('attendance_list'))
             else:
-                flash("The checking window has closed. You can only view attendance.")
+                flash("The time to checking is up! You can't check acttendance.")
                 return redirect(url_for('attendance_list'))
         
     current_time = datetime.now()        
