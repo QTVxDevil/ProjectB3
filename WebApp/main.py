@@ -377,7 +377,6 @@ def attendance_information():
 @app.route('/checking', methods=['GET', 'POST'])
 def checking():
     checked_id = session.get('checked_id')
-    print(f"{checked_id}")
     
     cursor = dtb.cursor()
     cursor.execute("""
