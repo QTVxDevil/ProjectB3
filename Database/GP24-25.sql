@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `student_in_course` (
     `student_id` VARCHAR(20) NOT NULL,
     `course_id` INT NOT NULL,
     FOREIGN KEY (`student_id`) REFERENCES `student_infor_details`(`student_id`) ON DELETE CASCADE,
-    FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE CASCADE
+    CONSTRAINT `fk_course` FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE CASCADE
 );
 
 -- --------------------------- attendance_checked ---------------------------
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `attendance_checked` (
     `place` VARCHAR(100) NOT NULL,
     `end_time` DATETIME NOT NULL,
     `course_id` INT NOT NULL,
-    FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE CASCADE
+    CONSTRAINT `fk_course_attendance` FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE CASCADE
 );
 
 DELIMITER //
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `student_attendance` (
     `time_checking` TIME NOT NULL,
     `attendance_id` INT NOT NULL,
     FOREIGN KEY (`student_id`) REFERENCES `student_infor_details`(`student_id`) ON DELETE CASCADE,
-    FOREIGN KEY (`attendance_id`) REFERENCES `attendance_checked`(`id`) ON DELETE CASCADE
+    CONSTRAINT `fk_attendance_checked` FOREIGN KEY (`attendance_id`) REFERENCES `attendance_checked`(`id`) ON DELETE CASCADE
 );
 
 -- ----------------------------- image_storage -----------------------------------
@@ -118,3 +118,6 @@ CREATE TABLE IF NOT EXISTS `image_storage` (
     `upload_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`student_id`) REFERENCES `student_infor_details`(`student_id`) ON DELETE CASCADE
 );
+
+-- ---------------------------------- handle delete course ----------------------------------------
+
