@@ -3,7 +3,9 @@ import mysql.connector
 import pandas as pd
 import numpy as np
 import cv2
-import tensorflow as tf
+import torch
+from facenet_pytorch import MTCNN, InceptionResnetV1
+from sklearn.metrics.pairwise import cosine_similarity
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
@@ -39,19 +41,24 @@ def delete(row_id):
     dtb.commit()
     
 
-def fetch_reference_image(student_id):
+def fetch_reference_embedding(student_id):
     cursor = dtb.cursor()
     try:
+        # Fetch the image data from the database
         cursor.execute("SELECT image_data FROM image_storage WHERE student_id = %s", (student_id,))
-        result = cursor.fetchone()  
+        result = cursor.fetchone()
         if result:
             blob_data = result[0]
-            img = Image.open(BytesIO(blob_data))
-            img = img.convert("L")
+            img = Image.open(BytesIO(blob_data)).convert("RGB")
             img = np.array(img)
-            return preprocess_image(img)
+
+            # Preprocess and extract FaceNet embedding
+            img_tensor = preprocess_image(img)
+            with torch.no_grad():
+                embedding = facenet(img_tensor.to(device)).cpu().numpy()
+            return embedding
         else:
-            print("No image found in database")
+            print("No image found in the database")
             return None
     finally:
         cursor.fetchall()
@@ -67,32 +74,27 @@ def fetch_reference_student(student_id):
         cursor.fetchall()
         cursor.close()
 
-def preprocess_image(img, target_size=(105, 105)):
-    if len(img.shape) == 2:  # If grayscale
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)  # Convert to 3 channels (RGB)
-    img = cv2.resize(img, target_size)  # Resize to match model's input size
+def preprocess_image(img, target_size=(160, 160)):
+    img = cv2.resize(img, target_size)  # Resize the image
     img = img.astype('float32') / 255.0  # Normalize pixel values
-    img = np.expand_dims(img, axis=0)  # Add batch dimension
+    img = np.transpose(img, (2, 0, 1))  # Convert HWC to CHW for PyTorch
+    img = torch.tensor(img).unsqueeze(0).float()  # Add batch dimension
     return img
 
-class L1Dist(tf.keras.layers.Layer):
-    def __init__(self, **kwargs):
-        super().__init__()
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+print(f"Running on device: {device}")
 
-    def call(self, inputs):
-        input_embedding, validation_embedding = inputs
-        return tf.math.abs(input_embedding - validation_embedding)
-
-tf.keras.utils.get_custom_objects()["L1Dist"] = L1Dist
-
+# Initialize FaceNet model and MTCNN
+facenet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
+mtcnn = MTCNN(image_size=160, margin=0, min_face_size=20, thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True, device=device)
 matched_data_queue = Queue()
 
 def generate_frames(student_id):
-    siamese = tf.keras.models.load_model("Model/siamesemodel.h5")
-    reference_image = fetch_reference_image(student_id)
-    if reference_image is None:
+    # Fetch the reference embedding
+    reference_embedding = fetch_reference_embedding(student_id)
+    if reference_embedding is None:
         raise ValueError("No reference image found for the student.")
-        
+
     camera = cv2.VideoCapture(0)
     try:
         while True:
@@ -102,33 +104,52 @@ def generate_frames(student_id):
             else:
                 frame = cv2.flip(frame, 1)
 
-            face = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Ensure 3-channel input for the model  
-            processed_face = preprocess_image(face)  
-            
-            similarity = siamese.predict([reference_image, processed_face])
-            print(f'prediction: {similarity}')
-            
-            if similarity > 0.2 and matched_data_queue.empty():
-                student_info = fetch_reference_student(student_id)
-                if student_info:
-                    student_name = student_info[0]
-                    matched_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    matched_data = {
-                        "student_id": student_id,
-                        "student_name": student_name,
-                        "matched_time": matched_time,
-                    }
-                    matched_data_queue.put(matched_data)
+            # Detect faces in the frame
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            boxes, _ = mtcnn.detect(rgb_frame)
+            if boxes is not None:
+                for (x1, y1, x2, y2) in boxes:
+                    # Ensure coordinates are integers and within frame bounds
+                    x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+                    if x1 < 0 or y1 < 0 or x2 > frame.shape[1] or y2 > frame.shape[0]:
+                        continue
                     
-                    break
-                 
+                    # Extract the face ROI
+                    face = rgb_frame[y1:y2, x1:x2]
+                    if face.size == 0:  # Check if face ROI is valid
+                        continue
+
+                    # Preprocess the face and extract embeddings
+                    face_tensor = preprocess_image(face)
+                    with torch.no_grad():
+                        live_embedding = facenet(face_tensor.to(device)).cpu().numpy()
+
+                    # Compute cosine similarity
+                    similarity = cosine_similarity(live_embedding, reference_embedding)[0][0]
+                    print(f"Similarity: {similarity}")
+
+                    # Check similarity threshold
+                    if similarity > 0.8 and matched_data_queue.empty():  # Threshold of 0.8
+                        student_info = fetch_reference_student(student_id)
+                        if student_info:
+                            student_name = student_info[0]
+                            matched_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            matched_data = {
+                                "student_id": student_id,
+                                "student_name": student_name,
+                                "matched_time": matched_time,
+                            }
+                            matched_data_queue.put(matched_data)
+                            break
+                
+
+            # Encode the frame for streaming
             _, buffer = cv2.imencode('.jpg', frame)
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')       
+                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
     finally:
         camera.release()
 
-    
 
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
