@@ -91,7 +91,7 @@ CREATE TRIGGER set_end_time
 BEFORE INSERT ON `attendance_checked`
 FOR EACH ROW
 BEGIN
-    SET NEW.end_time = DATE_ADD(NEW.start_time, INTERVAL 3 MINUTE);
+    SET NEW.end_time = DATE_ADD(NEW.start_time, INTERVAL 7 MINUTE);
 END;
 //
 
