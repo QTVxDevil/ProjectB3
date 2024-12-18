@@ -1,4 +1,4 @@
-USE `GP24-25`;
+USE `GP2425`;
 
 -- --------------------------- lecturer account ----------------------------------------
 INSERT INTO `user_auth`(`account`, `password`, `role`, `nameoflecturer`)

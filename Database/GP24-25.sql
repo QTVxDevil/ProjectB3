@@ -1,6 +1,6 @@
-CREATE DATABASE IF NOT EXISTS `GP24-25`;
+CREATE DATABASE IF NOT EXISTS `GP2425`;
 
-USE `GP24-25`;
+USE `GP2425`;
 
 -- ----------------------- student information ----------------------------------- 
 
