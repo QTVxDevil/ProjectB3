@@ -9,7 +9,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from io import BytesIO
 from PIL import Image
 from datetime import datetime
-from waitress import serve
 import os
 from multiprocessing import Queue
 
@@ -23,7 +22,7 @@ dtb = mysql.connector.connect(
     host="127.0.0.1",  
     user="root",       
     password="super123",     
-    database="gp24-25" 
+    database="gp2425" 
 )
 
 def delete(row_id):
@@ -616,10 +615,6 @@ def submit_data():
     
     return redirect(url_for('std_attendance_view'))
 
-mode = 'dev'
 
 if __name__ == '__main__':
-    if mode == 'dev':
-        app.run(debug=True)
-    else:
-        serve(app, host='0.0.0.0', port=5000, threads=2, url_prefix="/attendance-management")
+    app.run(debug=True)
