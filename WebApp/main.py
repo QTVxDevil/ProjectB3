@@ -19,11 +19,20 @@ app.secret_key = "any-string-you-want-just-keep-it-secret"
 
 
 dtb = mysql.connector.connect(
-    host="127.0.0.1",  
-    user="root",       
-    password="super123",     
-    database="gp2425" 
+    host='127.0.0.1',
+    user='root',
+    password='super123',
+    database='gp2425',
+    port='3306'
 )
+
+# dtb = mysql.connector.connect(
+#     host="db",  # Service name in docker-compose.yml
+#     user="root",
+#     password="super123",
+#     database="GP2425",
+#     port='3306'
+# )
 
 def delete(row_id):
     cursor = dtb.cursor(dictionary=True)
@@ -45,22 +54,25 @@ def fetch_reference_embedding(student_id):
     try:
         # Fetch the image data from the database
         cursor.execute("SELECT image_data FROM image_storage WHERE student_id = %s", (student_id,))
-        result = cursor.fetchone()
-        if result:
-            blob_data = result[0]
-            img = Image.open(BytesIO(blob_data)).convert("RGB")
-            img = np.array(img)
+        results = cursor.fetchall()
+        if results:
+            embeddings = []
+            for result in results:
+                blob_data = result[0]
+                img = Image.open(BytesIO(blob_data)).convert("RGB")
+                img = np.array(img)
 
-            # Preprocess and extract FaceNet embedding
-            img_tensor = preprocess_image(img)
-            with torch.no_grad():
-                embedding = facenet(img_tensor.to(device)).cpu().numpy()
-            return embedding
+                # Preprocess and extract FaceNet embedding
+                img_tensor = preprocess_image(img)
+                with torch.no_grad():
+                    embedding = facenet(img_tensor.to(device)).cpu().numpy()
+                    embeddings.append(embedding)
+            aggregated_embedding = np.mean(embeddings, axis=0)
+            return aggregated_embedding
         else:
             print("No image found in the database")
             return None
     finally:
-        cursor.fetchall()
         cursor.close()   
 
 def fetch_reference_student(student_id):
@@ -128,7 +140,7 @@ def generate_frames(student_id):
                     print(f"Similarity: {similarity}")
 
                     # Check similarity threshold
-                    if similarity > 0.8 and matched_data_queue.empty():  # Threshold of 0.8
+                    if similarity > 0.83 and matched_data_queue.empty(): 
                         student_info = fetch_reference_student(student_id)
                         if student_info:
                             student_name = student_info[0]
@@ -512,6 +524,7 @@ def attendance_list():
     classroom_id = session.get('classroom_id')
     student_id = session.get('student_id')
     
+    
     if request.method == "POST":
         row_id = request.form['row_id']
         print(f'row_id: {row_id}')
@@ -575,6 +588,7 @@ def face_scan():
         return render_template('/Student/facescan.html')
     
     student_id = session.get('student_id')
+    print(f"student id: {student_id}")
     
     if not student_id:
         return jsonify({"status": "error", "message": "Please log in to access this feature."}), 403
@@ -617,4 +631,4 @@ def submit_data():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8000)
