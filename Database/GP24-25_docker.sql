@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `student_infor_details` (
     `class` VARCHAR(50) NOT NULL,
     `course` VARCHAR(50) NOT NULL,
     PRIMARY KEY (`student_id`),
-    FOREIGN KEY (`student_id`) REFERENCES `student_infor`(`student_id`) ON DELETE CASCADE 
+    FOREIGN KEY (`student_id`) REFERENCES `student_infor`(`student_id`) ON DELETE CASCADE
 );
 
 -- ------------------- user_auth ---------------------------------
@@ -121,9 +121,3 @@ CREATE TABLE IF NOT EXISTS `image_storage` (
 
 -- ---------------------------------- handle delete course ----------------------------------------
 
-ALTER TABLE `student_in_course`
-DROP FOREIGN KEY `fk_course`;
-
-ALTER TABLE `student_in_course`
-ADD CONSTRAINT `fk_course`
-FOREIGN KEY (`course_id`) REFERENCES `course`(`id`) ON DELETE CASCADE;
